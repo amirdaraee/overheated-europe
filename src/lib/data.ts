@@ -3,9 +3,9 @@ import { resolve } from 'node:path';
 import { loadCsv } from './loadCsv';
 import {
   CountrySchema, AcPenetrationSchema, AcBySettingSchema,
-  RegulationSchema, PriceSchema, SurveySchema,
+  RegulationSchema, PriceSchema, SurveySchema, MortalitySchema,
   type Country, type AcPenetration, type AcBySetting,
-  type Regulation, type Price, type Survey,
+  type Regulation, type Price, type Survey, type Mortality,
 } from './schemas';
 
 const CURATED = resolve('src/data/curated');
@@ -32,6 +32,7 @@ export const getAcBySetting = (): AcBySetting[] => loadCsv(resolve(CURATED, 'ac_
 export const getRegulations = (): Regulation[] => loadCsv(resolve(CURATED, 'regulations.csv'), RegulationSchema);
 export const getPrices = (): Price[] => loadCsv(resolve(CURATED, 'prices.csv'), PriceSchema);
 export const getSurveys = (): Survey[] => loadCsv(resolve(CURATED, 'surveys.csv'), SurveySchema);
+export const getMortality = (): Mortality[] => loadCsv(resolve(CURATED, 'mortality.csv'), MortalitySchema);
 
 export function getTemperatures(): TemperatureData {
   if (!existsSync(GENERATED)) return { fetched_at: '', baseline: '', countries: [] };

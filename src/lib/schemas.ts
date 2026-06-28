@@ -94,9 +94,20 @@ export const SurveySchema = requireSourceWhenData(
   (r) => r.result_pct !== null,
 );
 
+export const MortalitySchema = requireSourceWhenData(
+  z.object({
+    region: z.string().min(1),
+    period: strOrEmpty,
+    excess_deaths: numOrNull,
+    ...sourceFields,
+  }),
+  (r) => r.excess_deaths !== null,
+);
+
 export type Country = z.infer<typeof CountrySchema>;
 export type AcPenetration = z.infer<typeof AcPenetrationSchema>;
 export type AcBySetting = z.infer<typeof AcBySettingSchema>;
 export type Regulation = z.infer<typeof RegulationSchema>;
 export type Price = z.infer<typeof PriceSchema>;
 export type Survey = z.infer<typeof SurveySchema>;
+export type Mortality = z.infer<typeof MortalitySchema>;

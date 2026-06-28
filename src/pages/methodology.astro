@@ -1,7 +1,6 @@
 ---
 import Layout from '../components/Layout.astro';
-import SourceBadge from '../components/SourceBadge.astro';
-import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getTemperatures } from '../lib/data';
+import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getMortality, getTemperatures } from '../lib/data';
 
 const base = import.meta.env.BASE_URL;
 const temps = getTemperatures();
@@ -11,6 +10,7 @@ const datasets = [
   { name: 'Regulations', rows: getRegulations() },
   { name: 'Prices', rows: getPrices() },
   { name: 'Surveys', rows: getSurveys() },
+  { name: 'Mortality', rows: getMortality() },
 ];
 function sources(rows: any[]) {
   const seen = new Map<string, { name: string; url: string; date: string }>();

@@ -9,7 +9,7 @@ import TrendChart from '../components/TrendChart.tsx';
 import BarChart from '../components/BarChart.tsx';
 import {
   getCountries, getTemperatures, getAcPenetration, getAcBySetting,
-  getRegulations, getPrices, getSurveys,
+  getRegulations, getPrices, getSurveys, getMortality,
 } from '../lib/data';
 
 const base = import.meta.env.BASE_URL;
@@ -20,6 +20,7 @@ const acSetting = getAcBySetting();
 const regs = getRegulations();
 const prices = getPrices();
 const surveys = getSurveys();
+const mortality = getMortality();
 
 const nameOf = Object.fromEntries(countries.map((c) => [c.iso2, c.name]));
 
@@ -105,7 +106,9 @@ const priceRows = prices.map((p) => ({
         Heat is the deadliest extreme-weather hazard in Europe. The figures below are drawn from peer-reviewed estimates — see each source.
       </p>
       <div id="mortality-cards" class="grid gap-4 sm:grid-cols-2">
-        <!-- Populated in Task 11 from a small mortality dataset; until then this section may show a single sourced StatCard. -->
+        {mortality.map((m) => m.excess_deaths !== null && (
+          <StatCard value={`~${(m.excess_deaths as number).toLocaleString()}`} label={`Heat-related excess deaths, ${m.region} ${m.period}`} source={{ name: m.source_name, url: m.source_url, date: m.source_date }} />
+        ))}
       </div>
     </section>
 
