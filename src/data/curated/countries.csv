@@ -1,0 +1,31 @@
+iso2,name,lat,lon,capital,population
+AT,Austria,48.21,16.37,Vienna,9100000
+BE,Belgium,50.85,4.35,Brussels,11600000
+BG,Bulgaria,42.70,23.32,Sofia,6500000
+HR,Croatia,45.81,15.98,Zagreb,3900000
+CY,Cyprus,35.17,33.37,Nicosia,1200000
+CZ,Czech Republic,50.07,14.43,Prague,10900000
+DK,Denmark,55.68,12.57,Copenhagen,5900000
+EE,Estonia,59.44,24.75,Tallinn,1400000
+FI,Finland,60.17,24.94,Helsinki,5600000
+FR,France,48.85,2.35,Paris,67800000
+DE,Germany,52.52,13.40,Berlin,84400000
+GR,Greece,37.97,23.73,Athens,10700000
+HU,Hungary,47.50,19.04,Budapest,9700000
+IE,Ireland,53.33,-6.25,Dublin,5100000
+IT,Italy,41.90,12.50,Rome,58900000
+LV,Latvia,56.95,24.11,Riga,1800000
+LT,Lithuania,54.69,25.28,Vilnius,2800000
+LU,Luxembourg,49.61,6.13,Luxembourg City,660000
+MT,Malta,35.90,14.51,Valletta,530000
+NL,Netherlands,52.37,4.90,Amsterdam,17900000
+PL,Poland,52.23,21.01,Warsaw,38200000
+PT,Portugal,38.72,-9.14,Lisbon,10300000
+RO,Romania,44.43,26.10,Bucharest,19000000
+SK,Slovakia,48.15,17.11,Bratislava,5500000
+SI,Slovenia,46.05,14.51,Ljubljana,2100000
+ES,Spain,40.42,-3.70,Madrid,48500000
+SE,Sweden,59.33,18.07,Stockholm,10400000
+GB,United Kingdom,51.51,-0.13,London,67000000
+CH,Switzerland,46.95,7.45,Bern,8800000
+NO,Norway,59.91,10.75,Oslo,5400000
