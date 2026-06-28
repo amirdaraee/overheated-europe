@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { parse } from 'csv-parse/sync';
 import type { z } from 'zod';
 
-export function loadCsv<T>(absPath: string, schema: z.ZodType<T>): T[] {
+export function loadCsv<T>(absPath: string, schema: z.ZodType<T, z.ZodTypeDef, unknown>): T[] {
   const raw = readFileSync(absPath, 'utf8');
   const records: Record<string, string>[] = parse(raw, {
     columns: true,
