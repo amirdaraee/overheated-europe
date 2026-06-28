@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parse } from 'csv-parse/sync';
@@ -45,10 +45,11 @@ function today() {
 async function fetchCountry(c, end) {
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${c.lat}&longitude=${c.lon}`
     + `&start_date=${START}&end_date=${end}&daily=temperature_2m_max&timezone=auto`;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const MAX_ATTEMPTS = 5;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (res.status === 429 || !res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const dates = json?.daily?.time ?? [];
       const vals = json?.daily?.temperature_2m_max ?? [];
@@ -59,22 +60,44 @@ async function fetchCountry(c, end) {
       return years;
     } catch (err) {
       console.warn(`Attempt ${attempt + 1} failed for ${c.iso2}: ${err.message}`);
-      if (attempt < 2) await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+      if (attempt < MAX_ATTEMPTS - 1) await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
     }
   }
-  console.error(`All attempts failed for ${c.iso2}; omitting.`);
+  console.error(`All attempts failed for ${c.iso2}; skipping.`);
   return null;
 }
 
 async function main() {
   const end = today();
   const rows = parse(readFileSync(COUNTRIES, 'utf8'), { columns: true, skip_empty_lines: true, trim: true });
-  const countries = {};
+
+  // Seed from existing output so re-runs never regress on previously-fetched countries
+  let countries = {};
+  if (existsSync(OUT)) {
+    try {
+      const existing = JSON.parse(readFileSync(OUT, 'utf8'));
+      if (existing && typeof existing.countries === 'object') {
+        countries = existing.countries;
+        console.log(`Loaded ${Object.keys(countries).length} existing countries from ${OUT}`);
+      }
+    } catch (err) {
+      console.warn(`Could not parse existing output; starting fresh. (${err.message})`);
+    }
+  }
+
   for (const c of rows) {
     const years = await fetchCountry(c, end);
-    if (years) countries[c.iso2] = { years };
-    await new Promise((r) => setTimeout(r, 400));
+    if (years) {
+      // Success: overwrite with fresh data
+      countries[c.iso2] = { years };
+    } else if (countries[c.iso2]) {
+      // Failure: keep previously-fetched entry
+      console.log(`Keeping cached entry for ${c.iso2}`);
+    }
+    // Failure with no cached entry: omit (leave countries[c.iso2] undefined)
+    await new Promise((r) => setTimeout(r, 2000));
   }
+
   const out = {
     fetched_at: new Date().toISOString(),
     source: 'Open-Meteo Archive API (ERA5)',
@@ -84,7 +107,7 @@ async function main() {
   };
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify(out));
-  console.log(`Wrote ${Object.keys(countries).length} countries to ${OUT}`);
+  console.log(`Done. ${Object.keys(countries).length} countries now present in ${OUT}`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
