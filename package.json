@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
-    "fetch:temps": "node scripts/fetch-temperatures.mjs"
+    "fetch:temps": "node scripts/fetch-temperatures.mjs",
+    "fetch:heat": "node scripts/fetch-heat-history.mjs"
   },
   "keywords": [],
   "author": "",
