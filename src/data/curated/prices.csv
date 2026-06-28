@@ -2,4 +2,4 @@ type,capacity_kw,price_min_eur,price_max_eur,annual_running_cost_eur,region,sour
 portable,,300,650,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
 split,,1000,2200,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
 multi_split,,1800,3900,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
-heat_pump,,9000,19000,,EU (excl. DE),HeatPumpsWatch – Heat pump installation costs: Germany vs. Europe,https://heatpumpswatch.org/heat-pump-installation-costs-germany-vs-europe/,2026-02-10
+heat_pump,,9000,20000,,EU (excl. DE),HeatPumpsWatch – Heat pump installation costs: Germany vs. Europe,https://heatpumpswatch.org/heat-pump-installation-costs-germany-vs-europe/,2026-02-10
