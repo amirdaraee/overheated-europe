@@ -25,5 +25,6 @@ describe('transformForecast', () => {
     expect(r.current_temp_c).toBeNull();
     expect(r.daily_max_c).toEqual([]);
     expect(r.summer_mean_c).toBeNull();
+    expect(r.stale).toBe(true);
   });
 });

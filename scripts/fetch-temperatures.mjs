@@ -36,7 +36,9 @@ async function fetchCountry(c) {
       return transformForecast(c.iso2, c.name, json);
     } catch (err) {
       console.warn(`Attempt ${attempt + 1} failed for ${c.iso2}: ${err.message}`);
-      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+      }
     }
   }
   console.error(`All attempts failed for ${c.iso2}; marking stale.`);
@@ -62,5 +64,5 @@ async function main() {
 
 // Run main() only when executed directly, not when imported by tests.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  main().catch((err) => { console.error(err); process.exit(1); });
 }
