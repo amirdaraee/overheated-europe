@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -22,6 +23,9 @@ jobs:
             git add src/data/generated/temperatures.json
             git commit -m "data: refresh temperatures"
             git push
+            gh workflow run deploy.yml
           else
             echo "No temperature changes."
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

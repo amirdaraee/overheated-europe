@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { parse } from 'csv-parse/sync';
 
 const OUT = resolve('src/data/generated/temperatures.json');
@@ -63,6 +64,6 @@ async function main() {
 }
 
 // Run main() only when executed directly, not when imported by tests.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => { console.error(err); process.exit(1); });
 }

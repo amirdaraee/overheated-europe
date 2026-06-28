@@ -29,9 +29,17 @@ const hottest = [...temps.countries]
   .filter((c) => c.current_temp_c !== null)
   .sort((a, b) => (b.current_temp_c ?? 0) - (a.current_temp_c ?? 0))[0];
 
-// EU-wide AC penetration mean (over available rows)
-const penVals = acPen.map((r) => r.households_with_ac_pct).filter((v): v is number => v !== null);
-const meanPen = penVals.length ? Math.round(penVals.reduce((a, b) => a + b, 0) / penVals.length) : null;
+// AC penetration stat: honest about coverage
+const penRows = acPen.filter((r) => r.households_with_ac_pct !== null);
+const penCountryCount = penRows.length;
+const penVals = penRows.map((r) => r.households_with_ac_pct as number);
+const meanPen = penCountryCount > 0 ? Math.round(penVals.reduce((a, b) => a + b, 0) / penVals.length) : null;
+const penStatValue = penCountryCount === 0 ? 'no data' : `${penCountryCount === 1 ? penVals[0] : meanPen}%`;
+const penStatLabel = penCountryCount === 0
+  ? 'Homes with AC'
+  : penCountryCount === 1
+    ? `Homes with AC (${nameOf[penRows[0].iso2] ?? penRows[0].iso2})`
+    : `Homes with AC (avg of ${penCountryCount} countries with data)`;
 
 // Map values: AC penetration by iso2
 const penByIso: Record<string, number | null> = {};
@@ -84,7 +92,7 @@ const priceRows = prices.map((p) => ({
       </p>
       <div class="grid gap-4 sm:grid-cols-3">
         {hottest && <StatCard value={`${hottest.current_temp_c}°C`} label={`Hottest right now: ${hottest.name}`} source={{ name: 'Open-Meteo', url: 'https://open-meteo.com/', date: (temps.fetched_at || '').slice(0,10) }} />}
-        <StatCard value={meanPen !== null ? `${meanPen}%` : 'no data'} label="Avg. EU homes with AC (sampled)" />
+        <StatCard value={penStatValue} label={penStatLabel} />
         <StatCard value={`${countries.length}`} label="Countries tracked" />
       </div>
       <p class="text-xs text-slate-500">Temperature data updated {temps.fetched_at ? temps.fetched_at.slice(0,10) : '—'}.</p>
@@ -165,7 +173,7 @@ const priceRows = prices.map((p) => ({
     </section>
 
     <footer class="border-t border-slate-200 dark:border-slate-800 pt-8 text-sm text-slate-500">
-      <a class="underline" href={`${base}methodology`}>Methodology & full source list →</a>
+      <a class="underline" href={`${base}methodology/`}>Methodology & full source list →</a>
     </footer>
   </main>
 </Layout>

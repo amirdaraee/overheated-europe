@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- thermometer body -->
+  <rect x="13" y="4" width="6" height="16" rx="3" fill="#e2e8f0"/>
+  <!-- mercury fill -->
+  <rect x="14.5" y="10" width="3" height="10" rx="1.5" fill="#ef4444"/>
+  <!-- bulb -->
+  <circle cx="16" cy="22" r="5" fill="#ef4444"/>
+  <!-- tick marks -->
+  <line x1="19" y1="8" x2="21" y2="8" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="19" y1="11" x2="21" y2="11" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="19" y1="14" x2="21" y2="14" stroke="#94a3b8" stroke-width="1"/>
+  <!-- sun rays -->
+  <circle cx="16" cy="22" r="2" fill="#fbbf24"/>
+  <line x1="16" y1="2" x2="16" y2="0" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="22" y1="4" x2="23.5" y2="2.5" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="10" y1="4" x2="8.5" y2="2.5" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
