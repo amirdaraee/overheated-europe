@@ -1,6 +1,168 @@
 ---
 import Layout from '../components/Layout.astro';
+import StatCard from '../components/StatCard.astro';
+import SourceBadge from '../components/SourceBadge.astro';
+import DataTable from '../components/DataTable.astro';
+import ChartFallback from '../components/ChartFallback.astro';
+import ChoroplethMap from '../components/ChoroplethMap.tsx';
+import TrendChart from '../components/TrendChart.tsx';
+import BarChart from '../components/BarChart.tsx';
+import {
+  getCountries, getTemperatures, getAcPenetration, getAcBySetting,
+  getRegulations, getPrices, getSurveys,
+} from '../lib/data';
+
+const base = import.meta.env.BASE_URL;
+const countries = getCountries();
+const temps = getTemperatures();
+const acPen = getAcPenetration();
+const acSetting = getAcBySetting();
+const regs = getRegulations();
+const prices = getPrices();
+const surveys = getSurveys();
+
+const nameOf = Object.fromEntries(countries.map((c) => [c.iso2, c.name]));
+
+// Hero: hottest current country
+const hottest = [...temps.countries]
+  .filter((c) => c.current_temp_c !== null)
+  .sort((a, b) => (b.current_temp_c ?? 0) - (a.current_temp_c ?? 0))[0];
+
+// EU-wide AC penetration mean (over available rows)
+const penVals = acPen.map((r) => r.households_with_ac_pct).filter((v): v is number => v !== null);
+const meanPen = penVals.length ? Math.round(penVals.reduce((a, b) => a + b, 0) / penVals.length) : null;
+
+// Map values: AC penetration by iso2
+const penByIso: Record<string, number | null> = {};
+for (const c of countries) penByIso[c.iso2] = null;
+for (const r of acPen) penByIso[r.iso2] = r.households_with_ac_pct as number | null;
+
+// Bar chart: penetration per country
+const penBars = countries.map((c) => ({ name: c.name, value: penByIso[c.iso2] }));
+
+// Trend chart: hottest country's daily max series
+const trend = hottest ?? { dates: [], daily_max_c: [], name: '' };
+
+// Regulations table rows
+const regCols = [
+  { key: 'country', label: 'Country' },
+  { key: 'title', label: 'Rule' },
+  { key: 'setpoint', label: 'Setpoint °C' },
+  { key: 'scope', label: 'Scope' },
+  { key: 'year', label: 'Year' },
+];
+const regRows = regs.map((r) => ({
+  country: nameOf[r.iso2] ?? r.iso2,
+  title: r.title || null,
+  setpoint: r.setpoint_limit_c as number | null,
+  scope: r.scope || null,
+  year: r.effective_year as number | null,
+}));
+
+// Price table rows
+const priceCols = [
+  { key: 'type', label: 'Type' },
+  { key: 'capacity', label: 'kW' },
+  { key: 'min', label: 'Min €' },
+  { key: 'max', label: 'Max €' },
+  { key: 'running', label: 'Annual run €' },
+];
+const priceRows = prices.map((p) => ({
+  type: p.type, capacity: p.capacity_kw as number | null, min: p.price_min_eur as number | null,
+  max: p.price_max_eur as number | null, running: p.annual_running_cost_eur as number | null,
+}));
 ---
-<Layout title="Europe Heat & AC">
-  <main class="mx-auto max-w-3xl p-8"><h1 class="text-3xl font-bold">Scaffold + Layout OK</h1></main>
+<Layout title="Europe's Heat & the Air-Conditioning Gap">
+  <main class="mx-auto max-w-5xl px-6 py-12 space-y-20">
+
+    <!-- HERO -->
+    <section class="text-center space-y-6">
+      <h1 class="text-5xl font-extrabold tracking-tight">Europe is getting hotter. Cooling hasn't kept up.</h1>
+      <p class="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+        The evidence on rising temperatures, the air-conditioning gap, the rules, the costs, and what people actually want — every figure sourced.
+      </p>
+      <div class="grid gap-4 sm:grid-cols-3">
+        {hottest && <StatCard value={`${hottest.current_temp_c}°C`} label={`Hottest right now: ${hottest.name}`} source={{ name: 'Open-Meteo', url: 'https://open-meteo.com/', date: (temps.fetched_at || '').slice(0,10) }} />}
+        <StatCard value={meanPen !== null ? `${meanPen}%` : 'no data'} label="Avg. EU homes with AC (sampled)" />
+        <StatCard value={`${countries.length}`} label="Countries tracked" />
+      </div>
+      <p class="text-xs text-slate-500">Temperature data updated {temps.fetched_at ? temps.fetched_at.slice(0,10) : '—'}.</p>
+    </section>
+
+    <!-- THE HEAT -->
+    <section class="space-y-4">
+      <h2 class="text-3xl font-bold">The Heat</h2>
+      <p class="text-slate-600 dark:text-slate-400">Recent daily maximum temperatures for the hottest country right now ({trend.name}).</p>
+      <ChartFallback caption={`Daily max temperature, ${trend.name}. Source: Open-Meteo.`}>
+        <TrendChart client:visible dates={trend.dates} values={trend.daily_max_c} label="°C daily max" />
+      </ChartFallback>
+    </section>
+
+    <!-- HEAT IMPACT (mortality) -->
+    <section class="space-y-4">
+      <h2 class="text-3xl font-bold">The Human Cost</h2>
+      <p class="text-slate-600 dark:text-slate-400">
+        Heat is the deadliest extreme-weather hazard in Europe. The figures below are drawn from peer-reviewed estimates — see each source.
+      </p>
+      <div id="mortality-cards" class="grid gap-4 sm:grid-cols-2">
+        <!-- Populated in Task 11 from a small mortality dataset; until then this section may show a single sourced StatCard. -->
+      </div>
+    </section>
+
+    <!-- THE AC GAP -->
+    <section class="space-y-6">
+      <h2 class="text-3xl font-bold">The Air-Conditioning Gap</h2>
+      <p class="text-slate-600 dark:text-slate-400">Share of households with air conditioning, by country. Grey = no data.</p>
+      <ChoroplethMap client:visible topojsonUrl={`${base}europe.topojson`} values={penByIso} metricLabel="% homes with AC" />
+      <ChartFallback caption="Households with AC by country. Sources listed on the methodology page.">
+        <BarChart client:visible data={penBars} xLabel="% of households with AC" />
+      </ChartFallback>
+
+      <h3 class="text-xl font-semibold pt-4">By setting</h3>
+      <p class="text-slate-600 dark:text-slate-400">Where cooling is — and isn't — installed: homes, workplaces, hospitals, schools, restaurants.</p>
+      <DataTable columns={[
+        { key: 'country', label: 'Country' },
+        { key: 'setting', label: 'Setting' },
+        { key: 'pct', label: '% with AC' },
+        { key: 'note', label: 'Note' },
+      ]} rows={acSetting.map((r) => ({ country: nameOf[r.iso2] ?? r.iso2, setting: r.setting, pct: r.penetration_pct as number | null, note: r.note || null }))} />
+    </section>
+
+    <!-- THE RULES -->
+    <section class="space-y-4">
+      <h2 class="text-3xl font-bold">The Rules</h2>
+      <p class="text-slate-600 dark:text-slate-400">Regulations and setpoint limits affecting cooling across Europe.</p>
+      <DataTable columns={regCols} rows={regRows} />
+      <ul class="text-sm space-y-1">
+        {regs.map((r) => r.source_url && (
+          <li>{nameOf[r.iso2] ?? r.iso2}: {r.summary}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} /></li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- THE COST -->
+    <section class="space-y-4">
+      <h2 class="text-3xl font-bold">The Cost</h2>
+      <p class="text-slate-600 dark:text-slate-400">Typical purchase and running-cost ranges by air-conditioning type.</p>
+      <DataTable columns={priceCols} rows={priceRows} />
+    </section>
+
+    <!-- SURVEYS -->
+    <section class="space-y-4">
+      <h2 class="text-3xl font-bold">What People Want</h2>
+      <p class="text-slate-600 dark:text-slate-400">Public attitudes and intentions around air conditioning.</p>
+      <ul class="space-y-2">
+        {surveys.map((s) => s.result_pct !== null && (
+          <li class="flex items-baseline gap-2">
+            <span class="text-2xl font-bold">{s.result_pct}%</span>
+            <span class="text-slate-600 dark:text-slate-400">{s.question} ({s.iso2_or_eu}, {s.year})<SourceBadge name={s.source_name} url={s.source_url} date={s.source_date} /></span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <footer class="border-t border-slate-200 dark:border-slate-800 pt-8 text-sm text-slate-500">
+      <a class="underline" href={`${base}methodology`}>Methodology & full source list →</a>
+    </footer>
+  </main>
 </Layout>

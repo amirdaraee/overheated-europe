@@ -1,0 +1,43 @@
+---
+import Layout from '../components/Layout.astro';
+import SourceBadge from '../components/SourceBadge.astro';
+import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getTemperatures } from '../lib/data';
+
+const base = import.meta.env.BASE_URL;
+const temps = getTemperatures();
+const datasets = [
+  { name: 'AC penetration (homes)', rows: getAcPenetration() },
+  { name: 'AC by setting', rows: getAcBySetting() },
+  { name: 'Regulations', rows: getRegulations() },
+  { name: 'Prices', rows: getPrices() },
+  { name: 'Surveys', rows: getSurveys() },
+];
+function sources(rows: any[]) {
+  const seen = new Map<string, { name: string; url: string; date: string }>();
+  for (const r of rows) if (r.source_url) seen.set(r.source_url, { name: r.source_name, url: r.source_url, date: r.source_date });
+  return [...seen.values()];
+}
+---
+<Layout title="Methodology & Sources">
+  <main class="mx-auto max-w-3xl px-6 py-12 space-y-10">
+    <a class="text-sm underline" href={base}>← Back</a>
+    <h1 class="text-4xl font-bold">Methodology & Sources</h1>
+    <p class="text-slate-600 dark:text-slate-400">
+      Temperature data comes from the <a class="underline" href="https://open-meteo.com/">Open-Meteo</a> forecast API,
+      refreshed automatically (last update {temps.fetched_at ? temps.fetched_at.slice(0,10) : '—'}). All other figures are
+      hand-curated from the sources below; every statistic on the site links to its origin. Where a value is unknown it is
+      shown as "no data" rather than estimated.
+    </p>
+    {datasets.map((d) => (
+      <section class="space-y-2">
+        <h2 class="text-2xl font-semibold">{d.name}</h2>
+        <ul class="text-sm space-y-1">
+          {sources(d.rows).length === 0 && <li class="text-slate-400">No sources yet.</li>}
+          {sources(d.rows).map((s) => (
+            <li><a class="underline" href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a> <span class="text-slate-500">({s.date})</span></li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </main>
+</Layout>
