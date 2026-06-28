@@ -104,6 +104,17 @@ export const MortalitySchema = requireSourceWhenData(
   (r) => r.excess_deaths !== null,
 );
 
+export const HeatThresholdSchema = requireSourceWhenData(
+  z.object({
+    label: z.string().min(1),
+    temp_c: numOrNull,
+    severity: z.enum(['caution', 'danger', 'extreme', '']).default(''),
+    ...sourceFields,
+  }),
+  (r) => r.temp_c !== null,
+);
+export type HeatThreshold = z.infer<typeof HeatThresholdSchema>;
+
 export type Country = z.infer<typeof CountrySchema>;
 export type AcPenetration = z.infer<typeof AcPenetrationSchema>;
 export type AcBySetting = z.infer<typeof AcBySettingSchema>;

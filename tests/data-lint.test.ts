@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getMortality } from '../src/lib/data';
+import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getMortality, getHeatThresholds } from '../src/lib/data';
 
 const all = {
   ac_penetration: getAcPenetration,
@@ -8,6 +8,7 @@ const all = {
   prices: getPrices,
   surveys: getSurveys,
   mortality: getMortality,
+  heat_thresholds: getHeatThresholds,
 };
 
 describe('curated data provenance', () => {

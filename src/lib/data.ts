@@ -4,8 +4,10 @@ import { loadCsv } from './loadCsv';
 import {
   CountrySchema, AcPenetrationSchema, AcBySettingSchema,
   RegulationSchema, PriceSchema, SurveySchema, MortalitySchema,
+  HeatThresholdSchema,
   type Country, type AcPenetration, type AcBySetting,
   type Regulation, type Price, type Survey, type Mortality,
+  type HeatThreshold,
 } from './schemas';
 
 const CURATED = resolve('src/data/curated');
@@ -42,6 +44,7 @@ export const getRegulations = (): Regulation[] => loadCsv(resolve(CURATED, 'regu
 export const getPrices = (): Price[] => loadCsv(resolve(CURATED, 'prices.csv'), PriceSchema);
 export const getSurveys = (): Survey[] => loadCsv(resolve(CURATED, 'surveys.csv'), SurveySchema);
 export const getMortality = (): Mortality[] => loadCsv(resolve(CURATED, 'mortality.csv'), MortalitySchema);
+export const getHeatThresholds = (): HeatThreshold[] => loadCsv(resolve(CURATED, 'heat_thresholds.csv'), HeatThresholdSchema);
 
 export function getTemperatures(): TemperatureData {
   if (!existsSync(GENERATED)) return { fetched_at: '', baseline: '', countries: [] };
