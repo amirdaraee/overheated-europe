@@ -16,54 +16,61 @@ interface Props {
 export default function ChoroplethMap({ topojsonUrl, values, metricLabel }: Props) {
   const ref = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [fc, setFc] = useState<any>(null);
   const width = 720;
   const height = 560;
 
+  // Fetch effect — runs once per topojsonUrl; never re-fetches due to values changing
   useEffect(() => {
     let cancelled = false;
     fetch(topojsonUrl)
       .then((r) => r.json())
       .then((topo) => {
-        if (cancelled || !ref.current) return;
-        const fc: any = feature(topo, topo.objects[OBJECT_KEY]);
-        const numericValues = Object.values(values).filter((v): v is number => v !== null);
-        const domain: [number, number] = numericValues.length
-          ? [Math.min(...numericValues), Math.max(...numericValues)]
-          : [0, 1];
-        const color = makeSequentialScale(domain);
-        const projection = geoMercator().fitSize([width, height], fc);
-        const path = geoPath(projection);
-        const svg = ref.current;
-        svg.innerHTML = '';
-        for (const f of fc.features) {
-          // ISO2 is in f.id for this TopoJSON (not in properties)
-          const iso2 = (f.id ?? '').toString().toUpperCase();
-          const val = iso2 in values ? values[iso2] : null;
-          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          p.setAttribute('d', path(f) ?? '');
-          p.setAttribute('fill', color(val));
-          p.setAttribute('stroke', '#94a3b8');
-          p.setAttribute('stroke-width', '0.5');
-          const name = f.properties?.NAME ?? f.properties?.name ?? iso2;
-          p.addEventListener('mousemove', (e) => {
-            const rect = svg.getBoundingClientRect();
-            setTooltip({
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top,
-              text: `${name}: ${val === null ? 'no data' : val} ${metricLabel}`,
-            });
-          });
-          p.addEventListener('mouseleave', () => setTooltip(null));
-          svg.appendChild(p);
-        }
+        if (cancelled) return;
+        setFc(feature(topo, topo.objects[OBJECT_KEY]));
       });
     return () => {
       cancelled = true;
     };
-  }, [topojsonUrl, values, metricLabel]);
+  }, [topojsonUrl]);
+
+  // Paint effect — re-runs when the parsed topology or data values change
+  useEffect(() => {
+    if (!fc || !ref.current) return;
+    const numericValues = Object.values(values).filter((v): v is number => v !== null);
+    const domain: [number, number] = numericValues.length
+      ? [Math.min(...numericValues), Math.max(...numericValues)]
+      : [0, 1];
+    const color = makeSequentialScale(domain);
+    const projection = geoMercator().fitSize([width, height], fc);
+    const path = geoPath(projection);
+    const svg = ref.current;
+    svg.innerHTML = '';
+    for (const f of fc.features) {
+      // ISO2 is in f.id for this TopoJSON (not in properties)
+      const iso2 = (f.id ?? '').toString().toUpperCase();
+      const val = iso2 in values ? values[iso2] : null;
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', path(f) ?? '');
+      p.setAttribute('fill', color(val));
+      p.setAttribute('stroke', '#94a3b8');
+      p.setAttribute('stroke-width', '0.5');
+      const name = f.properties?.NAME ?? f.properties?.name ?? iso2;
+      p.addEventListener('mousemove', (e) => {
+        const rect = svg.getBoundingClientRect();
+        setTooltip({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          text: `${name}: ${val === null ? 'no data' : val} ${metricLabel}`,
+        });
+      });
+      p.addEventListener('mouseleave', () => setTooltip(null));
+      svg.appendChild(p);
+    }
+  }, [fc, values, metricLabel]);
 
   return (
-    <div className="relative" style={{ position: 'relative' }}>
+    <div className="relative">
       <svg
         ref={ref}
         viewBox={`0 0 ${width} ${height}`}
