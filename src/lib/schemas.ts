@@ -79,7 +79,7 @@ export const PriceSchema = requireSourceWhenData(
     region: strOrEmpty,
     ...sourceFields,
   }),
-  (r) => r.price_min_eur !== null || r.price_max_eur !== null,
+  (r) => r.price_min_eur !== null || r.price_max_eur !== null || r.annual_running_cost_eur !== null,
 );
 
 export const SurveySchema = requireSourceWhenData(
