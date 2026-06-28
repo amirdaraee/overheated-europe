@@ -1,0 +1,49 @@
+---
+interface Props {
+  columns: { key: string; label: string }[];
+  rows: Record<string, string | number | null>[];
+}
+const { columns, rows } = Astro.props;
+---
+<div class="overflow-x-auto">
+  <table class="w-full border-collapse text-sm" data-sortable>
+    <thead>
+      <tr class="border-b border-slate-300 dark:border-slate-700 text-left">
+        {columns.map((c, i) => (
+          <th class="cursor-pointer select-none py-2 pr-4 font-semibold" data-col={i}>{c.label} <span aria-hidden="true">&#8597;</span></th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr class="border-b border-slate-100 dark:border-slate-800">
+          {columns.map((c) => (
+            <td class="py-2 pr-4">{row[c.key] === null || row[c.key] === '' ? <span class="text-slate-400">no data</span> : row[c.key]}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.querySelectorAll('table[data-sortable]').forEach((table) => {
+    const tbody = table.querySelector('tbody');
+    table.querySelectorAll('th[data-col]').forEach((th) => {
+      let asc = true;
+      th.addEventListener('click', () => {
+        const col = Number((th as HTMLElement).dataset.col);
+        const rows = Array.from(tbody!.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+          const av = a.children[col].textContent!.trim();
+          const bv = b.children[col].textContent!.trim();
+          const an = parseFloat(av), bn = parseFloat(bv);
+          const cmp = !isNaN(an) && !isNaN(bn) ? an - bn : av.localeCompare(bv);
+          return asc ? cmp : -cmp;
+        });
+        asc = !asc;
+        rows.forEach((r) => tbody!.appendChild(r));
+      });
+    });
+  });
+</script>

@@ -1,0 +1,11 @@
+---
+import SourceBadge from './SourceBadge.astro';
+interface Props { value: string; label: string; source?: { name?: string; url?: string; date?: string } }
+const { value, label, source } = Astro.props;
+---
+<div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+  <div class="text-4xl font-bold tracking-tight">{value}</div>
+  <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+    {label}{source && <SourceBadge {...source} />}
+  </div>
+</div>
