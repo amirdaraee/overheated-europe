@@ -1,2 +1,6 @@
 iso2_or_eu,question,result_pct,sample_size,year,source_name,source_url,source_date
 EU,Share of households unable to afford adequate cooling in summer,38,27000,2025,EEA–Eurofound 'Overheated and underprepared' report,https://www.eea.europa.eu/en/newsroom/news/climate-change-overheated-and-underprepared,2026-02-04
+DE,Share of German households planning to buy an air conditioner,19,,2024,Clean Energy Wire / Verivox 2024 survey,https://www.cleanenergywire.org/news/use-air-conditioning-rise-germany-summers-become-hotter,2024-06-28
+DE,Share of German households citing environmental impact as reason not to buy AC,23,,2024,Clean Energy Wire / Verivox 2024 survey,https://www.cleanenergywire.org/news/use-air-conditioning-rise-germany-summers-become-hotter,2024-06-28
+FR,Share of French adults who consider air conditioning not environmentally friendly,78,1000,2026,Ipsos bva for Bouygues Immobilier – April 2026 survey,https://www.ipsos.com/fr-fr/fortes-chaleurs-36-pourcent-des-francais-jugent-leur-logement-inadapte,2026-06-04
+FR,Share of French adults who consider AC the most effective solution for heat discomfort,84,1000,2026,Ipsos bva for Bouygues Immobilier – April 2026 survey,https://www.ipsos.com/fr-fr/fortes-chaleurs-36-pourcent-des-francais-jugent-leur-logement-inadapte,2026-06-04

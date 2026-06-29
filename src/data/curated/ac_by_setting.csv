@@ -1,1 +1,5 @@
 iso2,setting,penetration_pct,note,source_name,source_url,source_date
+FR,home,24,Share of French homes with at least one AC system (ADEME 2025 survey data),ADEME Batizoom – Part des logements climatisés,https://batizoom.ademe.fr/indicateurs/part-des-logements-climatises,2026-04-13
+IT,home,56,Share of Italian households with at least one space cooling system in 2024,ISTAT – Household Energy Equipment Year 2024,https://www.istat.it/en/press-release/household-energy-equipment-year-2024/,2026-02-17
+DE,home,19,Share of German households owning an air conditioner in 2024 (Verivox consumer survey),Clean Energy Wire / Verivox 2024 survey,https://www.cleanenergywire.org/news/use-air-conditioning-rise-germany-summers-become-hotter,2024-06-28
+GB,home,4.3,Share of English homes using air conditioning in 2023-24 (English Housing Survey n=15846),University of Reading / English Housing Survey 2023-24,https://www.reading.ac.uk/news/2026/Research-News/The-most-at-risk-from-heat-have-the-least-air-con,2026-06-25
