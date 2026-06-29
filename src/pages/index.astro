@@ -26,6 +26,13 @@ const mortality = getMortality();
 
 const nameOf = Object.fromEntries(countries.map((c) => [c.iso2, c.name]));
 
+// Prices: region field is sometimes a 2-letter ISO code, sometimes a description.
+// Non-ISO regions (e.g. "EU (excl. DE)") map to 'EU' for filtering.
+const isoRe = /^[A-Z]{2}$/;
+function priceCountry(region: string | undefined): string {
+  return region && isoRe.test(region) ? region : 'EU';
+}
+
 // Hero: hottest current country
 const hottest = [...temps.countries]
   .filter((c) => c.current_temp_c !== null)
@@ -123,7 +130,7 @@ const priceRows = prices.map((p) => ({
 
     <!-- HEAT IMPACT (mortality) -->
     <section class="space-y-4">
-      <h2 class="text-3xl font-bold">The Human Cost</h2>
+      <h2 class="text-3xl font-bold">The Human Cost <span class="text-sm font-normal text-slate-500 align-middle">Europe-wide</span></h2>
       <p class="text-slate-600 dark:text-slate-400">
         Heat is the deadliest extreme-weather hazard in Europe. The figures below are drawn from peer-reviewed estimates — see each source.
       </p>
@@ -151,6 +158,12 @@ const priceRows = prices.map((p) => ({
         { key: 'pct', label: '% with AC' },
         { key: 'note', label: 'Note' },
       ]} rows={acSetting.map((r) => ({ country: nameOf[r.iso2] ?? r.iso2, setting: r.setting, pct: r.penetration_pct as number | null, note: r.note || null }))} />
+      <ul class="text-sm space-y-1" data-filter-group>
+        {acSetting.map((r) => (
+          <li data-country={r.iso2}>{nameOf[r.iso2] ?? r.iso2} — {r.setting}{r.penetration_pct !== null && <>: {r.penetration_pct}% with AC</>}{r.note && <> ({r.note})</>}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} /></li>
+        ))}
+        <li data-empty hidden class="text-slate-400">No by-setting data for <span data-country-label></span>.</li>
+      </ul>
     </section>
 
     <!-- THE RULES -->
@@ -158,10 +171,11 @@ const priceRows = prices.map((p) => ({
       <h2 class="text-3xl font-bold">The Rules</h2>
       <p class="text-slate-600 dark:text-slate-400">Regulations and setpoint limits affecting cooling across Europe.</p>
       <DataTable columns={regCols} rows={regRows} />
-      <ul class="text-sm space-y-1">
+      <ul class="text-sm space-y-1" data-filter-group>
         {regs.map((r) => r.source_url && (
-          <li>{nameOf[r.iso2] ?? r.iso2}: {r.summary}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} /></li>
+          <li data-country={r.iso2 === 'EU' ? 'EU' : r.iso2}>{nameOf[r.iso2] ?? r.iso2}: {r.summary}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} /></li>
         ))}
+        <li data-empty hidden class="text-slate-400">No regulations on record for <span data-country-label></span>.</li>
       </ul>
     </section>
 
@@ -170,19 +184,32 @@ const priceRows = prices.map((p) => ({
       <h2 class="text-3xl font-bold">The Cost</h2>
       <p class="text-slate-600 dark:text-slate-400">Typical purchase and running-cost ranges by air-conditioning type.</p>
       <DataTable columns={priceCols} rows={priceRows} />
+      <ul class="text-sm space-y-1" data-filter-group>
+        {prices.map((p) => (p.price_min_eur !== null || p.price_max_eur !== null || p.annual_running_cost_eur !== null) && (
+          <li data-country={priceCountry(p.region)}>
+            <span class="font-medium">{p.type.replace('_', ' ')}</span>
+            {p.price_min_eur !== null && p.price_max_eur !== null && <> — €{p.price_min_eur}–€{p.price_max_eur}</>}
+            {p.annual_running_cost_eur !== null && <>, ~€{p.annual_running_cost_eur}/yr running</>}
+            {p.region && <> ({p.region})</>}
+            <SourceBadge name={p.source_name} url={p.source_url} date={p.source_date} />
+          </li>
+        ))}
+        <li data-empty hidden class="text-slate-400">No price data for <span data-country-label></span>.</li>
+      </ul>
     </section>
 
     <!-- SURVEYS -->
     <section class="space-y-4">
       <h2 class="text-3xl font-bold">What People Want</h2>
       <p class="text-slate-600 dark:text-slate-400">Public attitudes and intentions around air conditioning.</p>
-      <ul class="space-y-2">
+      <ul class="space-y-2" data-filter-group>
         {surveys.map((s) => s.result_pct !== null && (
-          <li class="flex items-baseline gap-2">
+          <li class="flex items-baseline gap-2" data-country={s.iso2_or_eu === 'EU' ? 'EU' : s.iso2_or_eu}>
             <span class="text-2xl font-bold">{s.result_pct}%</span>
             <span class="text-slate-600 dark:text-slate-400">{s.question} ({s.iso2_or_eu}, {s.year})<SourceBadge name={s.source_name} url={s.source_url} date={s.source_date} /></span>
           </li>
         ))}
+        <li data-empty hidden class="text-slate-400">No survey data for <span data-country-label></span>.</li>
       </ul>
     </section>
 
@@ -191,3 +218,10 @@ const priceRows = prices.map((p) => ({
     </footer>
   </main>
 </Layout>
+<script is:inline define:vars={{ names: nameOf }}>
+  window.__countryNames = names;
+</script>
+<script>
+  import { applyCountryFilter } from '../lib/applyCountryFilter';
+  applyCountryFilter();
+</script>
