@@ -5,12 +5,13 @@ import SourceBadge from '../components/SourceBadge.astro';
 import DataTable from '../components/DataTable.astro';
 import ChartFallback from '../components/ChartFallback.astro';
 import ChoroplethMap from '../components/ChoroplethMap.tsx';
-import TrendChart from '../components/TrendChart.tsx';
+import HeatChart from '../components/HeatChart.tsx';
 import BarChart from '../components/BarChart.tsx';
 import CountrySelector from '../components/CountrySelector.tsx';
 import {
   getCountries, getTemperatures, getAcPenetration, getAcBySetting,
   getRegulations, getPrices, getSurveys, getMortality,
+  getHeatHistory, getHeatThresholds,
 } from '../lib/data';
 
 const base = import.meta.env.BASE_URL;
@@ -50,8 +51,10 @@ for (const r of acPen) penByIso[r.iso2] = r.households_with_ac_pct as number | n
 // Bar chart: penetration per country
 const penBars = countries.map((c) => ({ name: c.name, value: penByIso[c.iso2] }));
 
-// Trend chart: hottest country's daily max series
-const trend = hottest ?? { dates: [], daily_max_c: [], name: '' };
+const heat = getHeatHistory();
+const heatThresholds = getHeatThresholds()
+  .filter((t) => t.temp_c !== null)
+  .map((t) => ({ label: t.label, temp_c: t.temp_c as number, severity: t.severity ?? '' }));
 
 // Regulations table rows
 const regCols = [
@@ -103,12 +106,19 @@ const priceRows = prices.map((p) => ({
     </section>
 
     <!-- THE HEAT -->
-    <section class="space-y-4">
-      <h2 class="text-3xl font-bold">The Heat</h2>
-      <p class="text-slate-600 dark:text-slate-400">Recent daily maximum temperatures for the hottest country right now ({trend.name}).</p>
-      <ChartFallback caption={`Daily max temperature, ${trend.name}. Source: Open-Meteo.`}>
-        <TrendChart client:visible dates={trend.dates} values={trend.daily_max_c} label="°C daily max" />
-      </ChartFallback>
+    <section class="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-slate-50 dark:bg-slate-900/40 py-12">
+      <div class="mx-auto max-w-6xl px-6 space-y-4">
+        <h2 class="text-3xl font-bold">The Heat</h2>
+        <p class="text-slate-600 dark:text-slate-400">
+          Maximum temperatures for the selected country, by month and over time. Source: Open-Meteo Archive (ERA5).
+        </p>
+        <HeatChart client:visible
+          history={heat.countries}
+          nameOf={nameOf}
+          thresholds={heatThresholds}
+          startYear={heat.start_year}
+          endYear={heat.end_year} />
+      </div>
     </section>
 
     <!-- HEAT IMPACT (mortality) -->
