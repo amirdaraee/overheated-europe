@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { geoMercator, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
+import { useStore } from '@nanostores/react';
+import { selectedCountry } from '../lib/countryStore';
 import { makeSequentialScale } from '../lib/colors';
 
 // OBJECT_KEY: the TopoJSON object key found by inspecting public/europe.topojson
@@ -17,6 +19,7 @@ export default function ChoroplethMap({ topojsonUrl, values, metricLabel }: Prop
   const ref = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
   const [fc, setFc] = useState<any>(null);
+  const active = useStore(selectedCountry);
   const width = 720;
   const height = 560;
 
@@ -53,8 +56,10 @@ export default function ChoroplethMap({ topojsonUrl, values, metricLabel }: Prop
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       p.setAttribute('d', path(f) ?? '');
       p.setAttribute('fill', color(val));
-      p.setAttribute('stroke', '#94a3b8');
-      p.setAttribute('stroke-width', '0.5');
+      const isActive = iso2 === active;
+      p.setAttribute('stroke', isActive ? '#0f172a' : '#94a3b8');
+      p.setAttribute('stroke-width', isActive ? '2' : '0.5');
+      if (isActive) p.setAttribute('stroke-linejoin', 'round');
       const name = f.properties?.NAME ?? f.properties?.name ?? iso2;
       p.addEventListener('mousemove', (e) => {
         const rect = svg.getBoundingClientRect();
@@ -67,7 +72,7 @@ export default function ChoroplethMap({ topojsonUrl, values, metricLabel }: Prop
       p.addEventListener('mouseleave', () => setTooltip(null));
       svg.appendChild(p);
     }
-  }, [fc, values, metricLabel]);
+  }, [fc, values, metricLabel, active]);
 
   return (
     <div className="relative">
