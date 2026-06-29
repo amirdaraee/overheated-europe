@@ -7,6 +7,7 @@ import ChartFallback from '../components/ChartFallback.astro';
 import ChoroplethMap from '../components/ChoroplethMap.tsx';
 import TrendChart from '../components/TrendChart.tsx';
 import BarChart from '../components/BarChart.tsx';
+import CountrySelector from '../components/CountrySelector.tsx';
 import {
   getCountries, getTemperatures, getAcPenetration, getAcBySetting,
   getRegulations, getPrices, getSurveys, getMortality,
@@ -94,6 +95,9 @@ const priceRows = prices.map((p) => ({
         {hottest && <StatCard value={`${hottest.current_temp_c}°C`} label={`Hottest right now: ${hottest.name}`} source={{ name: 'Open-Meteo', url: 'https://open-meteo.com/', date: (temps.fetched_at || '').slice(0,10) }} />}
         <StatCard value={penStatValue} label={penStatLabel} />
         <StatCard value={`${countries.length}`} label="Countries tracked" />
+      </div>
+      <div class="flex justify-center pt-2">
+        <CountrySelector client:load countries={countries.map((c) => ({ iso2: c.iso2, name: c.name }))} />
       </div>
       <p class="text-xs text-slate-500">Temperature data updated {temps.fetched_at ? temps.fetched_at.slice(0,10) : '—'}.</p>
     </section>
