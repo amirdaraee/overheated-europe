@@ -64,6 +64,7 @@ export const RegulationSchema = requireSourceWhenData(
     setpoint_limit_c: numOrNull,
     scope: z.enum(['public', 'private', 'all', '']).default(''),
     effective_year: numOrNull,
+    effect: z.enum(['restricts', 'enables', 'neutral', '']).default(''),
     ...sourceFields,
   }),
   (r) => !!r.title || r.setpoint_limit_c !== null,

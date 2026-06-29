@@ -79,6 +79,8 @@ const regRows = regs.map((r) => ({
   year: r.effective_year as number | null,
 }));
 
+const affordability = surveys.find((s) => /afford|cool/i.test(s.question ?? '') && s.result_pct !== null);
+
 // Price table rows
 const priceCols = [
   { key: 'type', label: 'Type' },
@@ -169,11 +171,14 @@ const priceRows = prices.map((p) => ({
     <!-- THE RULES -->
     <section class="space-y-4">
       <h2 class="text-3xl font-bold">The Rules</h2>
-      <p class="text-slate-600 dark:text-slate-400">Regulations and setpoint limits affecting cooling across Europe.</p>
+      <p class="text-slate-600 dark:text-slate-400">Regulations affecting cooling across Europe — some protect access to cooling, others restrict or constrain it. Tags show whether each rule <span class="rounded px-1.5 py-0.5 bg-red-100 text-red-800 text-xs">restricts</span> cooling (e.g. setpoint caps, refrigerant bans), <span class="rounded px-1.5 py-0.5 bg-green-100 text-green-800 text-xs">enables</span> it (access or tenant rights), or is <span class="rounded px-1.5 py-0.5 bg-slate-100 text-slate-700 text-xs">neutral</span> (performance standards without a clear cooling mandate).</p>
       <DataTable columns={regCols} rows={regRows} />
       <ul class="text-sm space-y-1" data-filter-group>
         {regs.map((r) => r.source_url && (
-          <li data-country={r.iso2 === 'EU' ? 'EU' : r.iso2}>{nameOf[r.iso2] ?? r.iso2}: {r.summary}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} /></li>
+          <li data-country={r.iso2 === 'EU' ? 'EU' : r.iso2}>
+            {r.effect && <span class={`mr-2 rounded px-1.5 py-0.5 text-xs ${r.effect === 'restricts' ? 'bg-red-100 text-red-800' : r.effect === 'enables' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700'}`}>{r.effect}</span>}
+            {nameOf[r.iso2] ?? r.iso2}: {r.summary}<SourceBadge name={r.source_name} url={r.source_url} date={r.source_date} />
+          </li>
         ))}
         <li data-empty hidden class="text-slate-400">No regulations on record for <span data-country-label></span>.</li>
       </ul>
@@ -196,6 +201,13 @@ const priceRows = prices.map((p) => ({
         ))}
         <li data-empty hidden class="text-slate-400">No price data for <span data-country-label></span>.</li>
       </ul>
+      {affordability && (
+        <div class="rounded-2xl border border-amber-300/50 bg-amber-50/50 dark:bg-amber-900/10 p-6">
+          <p class="text-2xl font-bold">{affordability.result_pct}%</p>
+          <p class="text-sm text-slate-600 dark:text-slate-400">{affordability.question} ({affordability.iso2_or_eu}, {affordability.year})<SourceBadge name={affordability.source_name} url={affordability.source_url} date={affordability.source_date} /></p>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Against these purchase and running costs, affordability — not just availability — shapes who stays cool.</p>
+        </div>
+      )}
     </section>
 
     <!-- SURVEYS -->
