@@ -1,3 +1,2 @@
 label,temp_c,severity,source_name,source_url,source_date
 Fans counterproductive above 40 °C air temperature; heat stress risk increases (WHO),40,danger,WHO – Climate change and heat and health (fact sheet),https://www.who.int/news-room/fact-sheets/detail/climate-change-heat-and-health,2026-04-28
-Extreme danger – NWS heat index ≥ 125 °F (≈52 °C); heat stroke highly likely,52,extreme,NOAA/NWS Heat Index Chart,https://www.noaa.gov/sites/default/files/2022-05/heatindex_chart_rh.pdf,2022-05-01
