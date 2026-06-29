@@ -8,8 +8,6 @@ interface Props {
   history: Record<string, { years: Record<string, (number | null)[]> }>;
   nameOf: Record<string, string>;
   thresholds: Threshold[];
-  startYear: number;
-  endYear: number;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

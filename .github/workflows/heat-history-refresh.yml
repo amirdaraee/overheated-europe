@@ -19,7 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$(git status --porcelain src/data/generated/heat-history.json)" ]; then
+          if git diff -- src/data/generated/heat-history.json | grep '^[+-]' | grep -v fetched_at | grep -qE '^[+-]'; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add src/data/generated/heat-history.json
@@ -27,5 +27,6 @@ jobs:
             git push
             gh workflow run deploy.yml
           else
-            echo "No heat-history changes."
+            echo "no data change"
+            git checkout -- src/data/generated/heat-history.json
           fi

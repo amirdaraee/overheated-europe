@@ -79,7 +79,7 @@ const regRows = regs.map((r) => ({
   year: r.effective_year as number | null,
 }));
 
-const affordability = surveys.find((s) => /afford|cool/i.test(s.question ?? '') && s.result_pct !== null);
+const affordability = surveys.find((s) => /afford/i.test(s.question ?? '') && /cool/i.test(s.question ?? '') && s.result_pct !== null);
 
 // Price table rows
 const priceCols = [
@@ -115,7 +115,7 @@ const priceRows = prices.map((p) => ({
     </section>
 
     <!-- THE HEAT -->
-    <section class="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-slate-50 dark:bg-slate-900/40 py-12">
+    <section class="relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-x-clip bg-slate-50 dark:bg-slate-900/40 py-12">
       <div class="mx-auto max-w-6xl px-6 space-y-4">
         <h2 class="text-3xl font-bold">The Heat</h2>
         <p class="text-slate-600 dark:text-slate-400">
@@ -124,9 +124,7 @@ const priceRows = prices.map((p) => ({
         <HeatChart client:visible
           history={heat.countries}
           nameOf={nameOf}
-          thresholds={heatThresholds}
-          startYear={heat.start_year}
-          endYear={heat.end_year} />
+          thresholds={heatThresholds} />
       </div>
     </section>
 
@@ -146,7 +144,7 @@ const priceRows = prices.map((p) => ({
     <!-- THE AC GAP -->
     <section class="space-y-6">
       <h2 class="text-3xl font-bold">The Air-Conditioning Gap</h2>
-      <p class="text-slate-600 dark:text-slate-400">Share of households with air conditioning, by country. Grey = no data.</p>
+      <p class="text-slate-600 dark:text-slate-400">Share of households with air conditioning, by country. Grey = no data. Figures combine official statistics and national surveys (definitions and years vary) — see the <a href={`${base}methodology/`} class="underline">methodology page</a> for each source.</p>
       <ChoroplethMap client:visible topojsonUrl={`${base}europe.topojson`} values={penByIso} metricLabel="% homes with AC" />
       <ChartFallback caption="Households with AC by country. Sources listed on the methodology page.">
         <BarChart client:visible data={penBars} xLabel="% of households with AC" />
@@ -215,7 +213,7 @@ const priceRows = prices.map((p) => ({
       <h2 class="text-3xl font-bold">What People Want</h2>
       <p class="text-slate-600 dark:text-slate-400">Public attitudes and intentions around air conditioning.</p>
       <ul class="space-y-2" data-filter-group>
-        {surveys.map((s) => s.result_pct !== null && (
+        {surveys.filter((s) => s !== affordability).map((s) => s.result_pct !== null && (
           <li class="flex items-baseline gap-2" data-country={s.iso2_or_eu === 'EU' ? 'EU' : s.iso2_or_eu}>
             <span class="text-2xl font-bold">{s.result_pct}%</span>
             <span class="text-slate-600 dark:text-slate-400">{s.question} ({s.iso2_or_eu}, {s.year})<SourceBadge name={s.source_name} url={s.source_url} date={s.source_date} /></span>
