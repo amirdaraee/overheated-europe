@@ -1,0 +1,31 @@
+name: Refresh heat history
+on:
+  schedule:
+    - cron: '23 4 * * 1'   # weekly, Monday 04:23 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run fetch:heat
+      - name: Commit and trigger deploy if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "$(git status --porcelain src/data/generated/heat-history.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add src/data/generated/heat-history.json
+            git commit -m "data: refresh heat history"
+            git push
+            gh workflow run deploy.yml
+          else
+            echo "No heat-history changes."
+          fi
