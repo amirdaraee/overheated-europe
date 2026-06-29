@@ -6,3 +6,6 @@ dist/
 
 # Local design/planning docs — kept out of git
 docs/superpowers/
+
+# Design-sync local reference (not committed)
+.design-sync/reference/

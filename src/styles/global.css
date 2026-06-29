@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
-:root { color-scheme: light dark; }
-html { scroll-behavior: smooth; }
-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+:root{
+ --paper:#e6e9eb; --surf:#ffffff; --surf2:#f2f4f5; --ink:#14171a; --ink2:#3a3e44; --mut:#5f646b; --mut2:#8b9199;
+ --rule:rgba(20,23,26,.13); --rule2:rgba(20,23,26,.07);
+ --ember:#d2442a; --ember-deep:#8c1d2b; --amber:#df8d36; --pale:#eec858;
+ --serif:'Newsreader',Georgia,'Times New Roman',serif; --sans:'Public Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:var(--ember);color:#fff}
+a{color:inherit}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.src{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;margin-left:4px;border-radius:50%;border:1px solid var(--mut2);color:var(--mut);font:600 9px/1 var(--mono);text-decoration:none;vertical-align:super;transition:.15s}
+.src:hover{background:var(--ember);border-color:var(--ember);color:#fff}
