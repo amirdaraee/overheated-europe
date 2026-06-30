@@ -77,6 +77,31 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     { iso: 'DE', setting: 'Homes', pct: '19', note: 'Households owning an AC, 2024' },
     { iso: 'GB', setting: 'Homes', pct: '4.3', note: 'English homes using AC, 2023–24' }
   ];
+  // Every cited source, classified. A political leaning is shown only for genuine news
+  // outlets, from an independent rater — the rest are official, institutional or academic.
+  SOURCES: { name: string; type: string; url: string; leaning?: string; leaningUrl?: string }[] = [
+    { name: 'ISTAT', type: 'Official statistics', url: 'https://www.istat.it/' },
+    { name: 'Hellenic Statistical Authority (ELSTAT)', type: 'Official statistics', url: 'https://www.statistics.gr/' },
+    { name: 'NSO Malta', type: 'Official statistics', url: 'https://nso.gov.mt/' },
+    { name: 'Statistics Portugal (INE)', type: 'Official statistics', url: 'https://www.ine.pt/' },
+    { name: 'Statistics Netherlands (CBS)', type: 'Official statistics', url: 'https://www.cbs.nl/' },
+    { name: 'Statistik Austria', type: 'Official statistics', url: 'https://www.statistik.at/' },
+    { name: 'Eurostat', type: 'Official statistics', url: 'https://ec.europa.eu/eurostat' },
+    { name: 'ADEME', type: 'Government agency', url: 'https://www.ademe.fr/' },
+    { name: 'European Environment Agency (EEA)', type: 'Government / EU agency', url: 'https://www.eea.europa.eu/' },
+    { name: 'Eurofound', type: 'Government / EU agency', url: 'https://www.eurofound.europa.eu/' },
+    { name: 'World Health Organization (WHO)', type: 'Intergovernmental', url: 'https://www.who.int/' },
+    { name: 'Ballester et al., Nature Medicine', type: 'Peer-reviewed', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10353926/' },
+    { name: 'University of Reading / English Housing Survey', type: 'Academic & govt survey', url: 'https://www.reading.ac.uk/' },
+    { name: 'EUR-Lex', type: 'Legal / regulatory', url: 'https://eur-lex.europa.eu/' },
+    { name: 'BOE — Boletín Oficial del Estado', type: 'Legal / regulatory', url: 'https://www.boe.es/' },
+    { name: 'Normattiva', type: 'Legal / regulatory', url: 'https://www.normattiva.it/' },
+    { name: 'Ipsos', type: 'Survey & polling', url: 'https://www.ipsos.com/' },
+    { name: 'Verivox', type: 'Market data', url: 'https://www.verivox.de/' },
+    { name: 'idealista', type: 'Market data', url: 'https://www.idealista.com/' },
+    { name: 'Open-Meteo (ERA5 archive & forecast)', type: 'Climate data', url: 'https://open-meteo.com/' },
+    { name: 'Clean Energy Wire', type: 'News media', url: 'https://www.cleanenergywire.org/', leaning: 'Not rated (AllSides)', leaningUrl: 'https://www.allsides.com/news-source/energy-wire-media-bias' }
+  ];
 
   nameOf(iso: string) { const f = this.COUNTRIES.find(c => c[0] === iso); return f ? f[1] : iso; }
 
@@ -389,23 +414,10 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     return (
       <div style={css('max-width:1280px;margin:0 auto;min-height:100vh;background:var(--paper);overflow:hidden')}>
 
-        <header style={css('display:flex;align-items:center;justify-content:space-between;gap:24px;padding:13px 36px;border-bottom:1px solid var(--rule)')}>
-          <a href="#top" style={css('display:flex;align-items:baseline;gap:10px;text-decoration:none')}>
-            <span style={css("font:600 15px/1 var(--serif);letter-spacing:-.01em")}>Europe&apos;s Heat &amp; the Cooling Gap</span>
-            <span style={css('font:600 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--mut2);text-transform:uppercase')}>Dossier</span>
-          </a>
-          <span style={css('font:500 10px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase')}>Temps updated {v.fetchedDate}</span>
-        </header>
-
         <main id="top">
 
           {/* HERO */}
-          <section style={css('padding:56px 36px 52px;position:relative')}>
-            <div style={css('display:flex;align-items:center;gap:12px;margin-bottom:30px')}>
-              <span style={css('font:600 10px/1 var(--mono);letter-spacing:.2em;color:var(--ember);text-transform:uppercase')}>Evidence Dossier</span>
-              <span style={css('height:1px;flex:1;background:var(--rule)')}></span>
-              <span style={css('font:500 10px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase')}>30 countries · every figure sourced</span>
-            </div>
+          <section style={css('padding:52px 36px 52px;position:relative')}>
             <div style={css('display:grid;grid-template-columns:1.08fr 0.92fr;gap:52px;align-items:center')}>
               <div>
                 <h1 style={css('margin:0;font:600 clamp(40px,5vw,76px)/0.98 var(--serif);letter-spacing:-.02em')}>Europe is overheating. Its cooling hasn&apos;t caught up.</h1>
@@ -714,6 +726,31 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
             </div>
           </section>
 
+          {/* 07 THE SOURCES */}
+          <section style={css('padding:60px 36px 56px;border-top:1px solid var(--rule)')}>
+            <div style={css('display:flex;align-items:baseline;gap:14px;margin-bottom:8px')}>
+              <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>07</span>
+              <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Sources</h2>
+            </div>
+            <p style={css('margin:0 0 26px;max-width:66ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Every figure here comes from official statistics, peer-reviewed research, government agencies or primary legal texts — not partisan media. Each source is classified below; a media-bias leaning is shown only where a source is a news outlet, and none of the evidence rests on a politically-rated source.</p>
+            <table style={css('width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums')}>
+              <thead><tr style={css('border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
+                <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Source</th>
+                <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Category</th>
+                <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Political leaning</th>
+              </tr></thead>
+              <tbody>
+                {this.SOURCES.map((s, i) => (
+                  <tr key={i} style={css('border-bottom:1px solid var(--rule)')}>
+                    <td style={css('padding:12px;font:600 14px/1.35 var(--sans)')}><a href={s.url} target="_blank" rel="noopener" style={css('color:var(--ink);text-decoration:none;border-bottom:1px solid var(--mut2)')}>{s.name}</a></td>
+                    <td style={css('padding:12px;font:400 13px/1.35 var(--sans);color:var(--ink2)')}>{s.type}</td>
+                    <td style={css('padding:12px;font:400 13px/1.35 var(--sans);color:var(--mut)')}>{s.leaning ? (<a href={s.leaningUrl} target="_blank" rel="noopener" style={css('color:var(--mut);text-decoration:underline')}>{s.leaning}</a>) : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+
         </main>
 
         <footer style={css('padding:56px 36px 64px;border-top:1px solid var(--ink)')}>
@@ -722,14 +759,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <div style={css('font:600 18px/1.2 var(--serif)')}>A note on the evidence</div>
               <p style={css('margin:12px 0 0;font:400 13px/1.6 var(--sans);color:var(--mut)')}>Figures combine official statistics, peer-reviewed studies, and national surveys; definitions, years, and methods vary by source. Every figure carries an <span style={css('color:var(--ember)')}>ⓘ</span> link to its origin. Temperature data is from the Open-Meteo Archive (ERA5) and forecast API.</p>
             </div>
-            <div style={css('font:500 11px/1.8 var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:.08em')}>
-              <div>Sources</div>
-              <div style={css('color:var(--ink2);text-transform:none;letter-spacing:0;margin-top:8px;font-family:var(--sans);font-size:12px;line-height:1.7')}>
-                ISTAT · ELSTAT · NSO Malta · ADEME · CBS · INE · Eurostat<br/>
-                EEA · Eurofound · Ballester et al. (Nature Medicine) · WHO<br/>
-                EUR-Lex · BOE · Normattiva · Ipsos · Clean Energy Wire
-              </div>
-            </div>
+            <div style={css('font:500 11px/1.7 var(--mono);color:var(--mut2);max-width:30ch')}>Full source list with categories in section 07 above.</div>
           </div>
         </footer>
 
