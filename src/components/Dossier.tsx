@@ -18,6 +18,7 @@ function css(s: string | undefined): React.CSSProperties {
 
 export default class Dossier extends React.Component<{ baseUrl: string; ac: Record<string, number> }, { country: string; metric: string; compact: any; topo: any }> {
   state = { country: 'ALL', metric: 'peak', compact: null as any, topo: null as any };
+  mapTipRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
     fetch(this.props.baseUrl + 'heat-compact.json').then(r => r.json())
@@ -240,6 +241,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
       const iso = norm(f.id != null ? String(f.id) : '');
       const v = this.AC[iso] ?? null, has = v != null, cool = !has && lowNeed(iso), active = sel === iso;
       const d = path(f); if (!d) return;
+      const label = this.nameOf(iso) + (has ? ' — ' + v + '%' : cool ? ' — low cooling need' : ' — no data');
       kids.push(ce('path', {
         key: 'p' + i, d,
         fill: has ? (this.acColor(v) as string) : cool ? '#9aa0a4' : 'url(#ac-nodata)',
@@ -247,8 +249,17 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
         'stroke-width': active ? 2 : 0.5,
         'stroke-linejoin': 'round',
         style: { cursor: 'pointer', transition: 'fill .15s, stroke .15s' },
+        onMouseMove: (e: any) => {
+          const svg = e.currentTarget.ownerSVGElement; const tip = this.mapTipRef.current; if (!svg || !tip) return;
+          const r = svg.getBoundingClientRect();
+          tip.textContent = label;
+          tip.style.left = (e.clientX - r.left + 14) + 'px';
+          tip.style.top = (e.clientY - r.top + 14) + 'px';
+          tip.style.display = 'block';
+        },
+        onMouseLeave: () => { const tip = this.mapTipRef.current; if (tip) tip.style.display = 'none'; },
         onClick: () => this.setCountry(iso),
-      }, ce('title', null, this.nameOf(iso) + (has ? ' — ' + v + '%' : cool ? ' — low cooling need' : ' — no data'))));
+      }, ce('title', null, label)));
     });
     return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', height: 'auto', display: 'block' }, role: 'img', 'aria-label': 'Map of Europe shaded by share of homes with air conditioning' }, kids);
   }
@@ -584,7 +595,10 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
             <div style={css('display:flex;flex-direction:column;gap:44px;margin-top:34px')}>
               <div style={css('max-width:780px;width:100%;margin:0 auto')}>
                 <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>% of homes with AC</div>
-                {v.mapEl}
+                <div style={css('position:relative')}>
+                  {v.mapEl}
+                  <div ref={this.mapTipRef} style={{ position: 'absolute', display: 'none', left: 0, top: 0, background: 'rgba(20,23,26,0.92)', color: '#fff', padding: '4px 9px', borderRadius: '4px', font: '600 12px var(--sans)', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 5 } as React.CSSProperties} />
+                </div>
                 <div style={css('display:flex;align-items:center;gap:10px;margin-top:20px')}>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>0%</span>
                   <span style={css('flex:1;height:9px;border-radius:2px;background:linear-gradient(90deg,#b02134,#de8d6e,#ece6dd,#81aac6,#1b3a6b)')}></span>
@@ -759,7 +773,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <div style={css('font:600 18px/1.2 var(--serif)')}>A note on the evidence</div>
               <p style={css('margin:12px 0 0;font:400 13px/1.6 var(--sans);color:var(--mut)')}>Figures combine official statistics, peer-reviewed studies, and national surveys; definitions, years, and methods vary by source. Every figure carries an <span style={css('color:var(--ember)')}>ⓘ</span> link to its origin. Temperature data is from the Open-Meteo Archive (ERA5) and forecast API.</p>
             </div>
-            <div style={css('font:500 11px/1.7 var(--mono);color:var(--mut2);max-width:30ch')}>Full source list with categories in section 07 above.</div>
+            <div style={css('font:500 11px/1.7 var(--mono);color:var(--mut2);max-width:30ch')}>Full source list with categories in section 07 above.<br/>Temperature data last updated {v.fetchedDate}.</div>
           </div>
         </footer>
 
