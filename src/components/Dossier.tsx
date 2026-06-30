@@ -360,7 +360,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
       heatDek, trendLabel,
       setPeak: () => this.setState({ metric: 'peak' }), setSummer: () => this.setState({ metric: 'summer' }),
       peakBtnStyle: metric === 'peak' ? segOn : segOff, summerBtnStyle: metric === 'summer' ? segOn : segOff,
-      chartEl: this.buildChart(), sparkEl: this.buildSpark(),
+      chartEl: this.buildChart(),
       barsEl: this.buildBars(), mapEl: this.buildMap(), scatterEl: this.buildScatter(),
       verdict, verdictMetrics: verdict.metrics, verdictLine: verdict.line, verdictName: verdict.name,
       verdictBadge: verdict.isAll ? 'EUROPE-WIDE' : (verdict.exposed ? 'EXPOSED' : 'PROFILE'),
@@ -526,12 +526,6 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('display:inline-flex;align-items:center;gap:7px;font:500 11px/1 var(--sans);color:#b9b6b1')}><span style={css('width:18px;height:2px;background:#e0563a;display:inline-block')}></span>Observed maximum</span>
               <span style={css('display:inline-flex;align-items:center;gap:7px;font:500 11px/1 var(--sans);color:#b9b6b1')}><span style={css('width:18px;height:0;border-top:2px dashed #8b8884;display:inline-block')}></span>Trend</span>
               <span style={css('display:inline-flex;align-items:center;gap:7px;font:500 11px/1 var(--sans);color:#b9b6b1')}><span style={css('width:18px;height:2px;background:#ef5350;display:inline-block')}></span>40°C danger line<a className="src" href="https://www.who.int/news-room/fact-sheets/detail/climate-change-heat-and-health" target="_blank" rel="noopener" title="WHO — fans become counterproductive above 40°C">i</a></span>
-            </div>
-            <div style={css('margin-top:24px;display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap')}>
-              <div>
-                <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:#8b8884;text-transform:uppercase;margin-bottom:10px')}>Next 13 days · daily max °C</div>
-                {v.sparkEl}
-              </div>
             </div>
           </section>
 
