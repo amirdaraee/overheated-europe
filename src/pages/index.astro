@@ -1,8 +1,16 @@
 ---
 import Layout from '../components/Layout.astro';
 import Dossier from '../components/Dossier.tsx';
+import { getAcPenetration } from '../lib/data';
+
 const base = import.meta.env.BASE_URL;
+
+// Household AC penetration from the curated, citation-validated CSV (single source of truth).
+const ac: Record<string, number> = {};
+for (const r of getAcPenetration()) {
+  if (r.households_with_ac_pct !== null) ac[r.iso2] = r.households_with_ac_pct as number;
+}
 ---
 <Layout title="Europe's Heat & the Cooling Gap — Dossier">
-  <Dossier client:load baseUrl={base} />
+  <Dossier client:load baseUrl={base} ac={ac} />
 </Layout>

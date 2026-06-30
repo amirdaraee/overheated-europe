@@ -16,7 +16,7 @@ function css(s: string | undefined): React.CSSProperties {
   return o as React.CSSProperties;
 }
 
-export default class Dossier extends React.Component<{ baseUrl: string }, { country: string; metric: string; compact: any; topo: any }> {
+export default class Dossier extends React.Component<{ baseUrl: string; ac: Record<string, number> }, { country: string; metric: string; compact: any; topo: any }> {
   state = { country: 'ALL', metric: 'peak', compact: null as any, topo: null as any };
 
   componentDidMount() {
@@ -36,16 +36,9 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
     ['ES', 'Spain'], ['SE', 'Sweden'], ['GB', 'United Kingdom'], ['CH', 'Switzerland'], ['NO', 'Norway']
   ];
   CHIP_ISOS = ['ALL', 'IT', 'ES', 'FR', 'DE', 'GR', 'NL', 'PT', 'GB', 'MT'];
-  AC: Record<string, number> = { IT: 56, GR: 75.8, MT: 84, FR: 25, NL: 12.3, PT: 16.6, DE: 19 };
-  AC_SRC: Record<string, [string, string]> = {
-    IT: ['ISTAT — Household energy equipment 2024', 'https://www.istat.it/en/press-release/household-energy-equipment-year-2024/'],
-    GR: ['ELSTAT — Household Budget Survey 2023', 'https://www.statistics.gr/'],
-    MT: ['NSO Malta — Census 2021', 'https://nso.gov.mt/'],
-    FR: ['ADEME — 2024', 'https://infos.ademe.fr/'],
-    NL: ['CBS — Belevingen 2023', 'https://www.cbs.nl/'],
-    PT: ['INE — Census 2021', 'https://www.ine.pt/'],
-    DE: ['Clean Energy Wire / Verivox 2024', 'https://www.cleanenergywire.org/news/use-air-conditioning-rise-germany-summers-become-hotter']
-  };
+  // Household AC penetration (% of homes) comes from the curated, citation-validated
+  // ac_penetration.csv via the `ac` prop — single source of truth.
+  get AC(): Record<string, number> { return this.props.ac; }
   TILES: Record<string, [number, number]> = {
     NO: [5, 1], SE: [6, 1], FI: [7, 1], EE: [7, 2], LV: [7, 3], LT: [7, 4],
     IE: [1, 3], GB: [2, 3], DK: [5, 2], NL: [4, 3], DE: [5, 3], PL: [6, 3],
