@@ -1,43 +1,73 @@
 ---
 import Layout from '../components/Layout.astro';
-import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getMortality, getTemperatures } from '../lib/data';
+import { getAcPenetration, getAcBySetting, getRegulations, getPrices, getSurveys, getMortality, getHeatThresholds, getTemperatures } from '../lib/data';
 
 const base = import.meta.env.BASE_URL;
 const temps = getTemperatures();
 const datasets = [
-  { name: 'AC penetration (homes)', rows: getAcPenetration() },
-  { name: 'AC by setting', rows: getAcBySetting() },
+  { name: 'Air-conditioning penetration (homes)', rows: getAcPenetration() },
+  { name: 'Air-conditioning by setting', rows: getAcBySetting() },
   { name: 'Regulations', rows: getRegulations() },
   { name: 'Prices', rows: getPrices() },
-  { name: 'Surveys', rows: getSurveys() },
-  { name: 'Mortality', rows: getMortality() },
+  { name: 'Surveys & preferences', rows: getSurveys() },
+  { name: 'Heat mortality', rows: getMortality() },
+  { name: 'Human heat-risk thresholds', rows: getHeatThresholds() },
 ];
 function sources(rows: any[]) {
-  const seen = new Map<string, { name: string; url: string; date: string }>();
-  for (const r of rows) if (r.source_url) seen.set(r.source_url, { name: r.source_name, url: r.source_url, date: r.source_date });
-  return [...seen.values()];
+  const seen = new Map<string, { name: string; date: string }>();
+  for (const r of rows) if (r.source_url) seen.set(r.source_url, { name: r.source_name, date: r.source_date });
+  return [...seen.entries()].map(([url, v]) => ({ url, ...v }));
 }
 ---
-<Layout title="Methodology & Sources">
-  <main class="mx-auto max-w-3xl px-6 py-12 space-y-10">
-    <a class="text-sm underline" href={base}>← Back</a>
-    <h1 class="text-4xl font-bold">Methodology & Sources</h1>
-    <p class="text-slate-600 dark:text-slate-400">
-      Temperature data comes from the <a class="underline" href="https://open-meteo.com/">Open-Meteo</a> forecast API,
-      refreshed automatically (last update {temps.fetched_at ? temps.fetched_at.slice(0,10) : '—'}). All other figures are
-      hand-curated from the sources below; every statistic on the site links to its origin. Where a value is unknown it is
-      shown as "no data" rather than estimated.
-    </p>
-    {datasets.map((d) => (
-      <section class="space-y-2">
-        <h2 class="text-2xl font-semibold">{d.name}</h2>
-        <ul class="text-sm space-y-1">
-          {sources(d.rows).length === 0 && <li class="text-slate-400">No sources yet.</li>}
-          {sources(d.rows).map((s) => (
-            <li><a class="underline" href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a> <span class="text-slate-500">({s.date})</span></li>
-          ))}
-        </ul>
-      </section>
-    ))}
-  </main>
+<Layout title="Methodology & Sources — Heat Dossier">
+  <div style="max-width:1280px;margin:0 auto;min-height:100vh;background:var(--paper)">
+
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:13px 36px;border-bottom:1px solid var(--rule)">
+      <a href={base} style="display:flex;align-items:baseline;gap:10px;text-decoration:none">
+        <span style="font:600 15px/1 var(--serif);letter-spacing:-.01em">Europe&apos;s Heat &amp; the Cooling Gap</span>
+        <span style="font:600 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--mut2);text-transform:uppercase">Dossier</span>
+      </a>
+      <a href={base} style="font:500 10px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase;text-decoration:none">&larr; Back to the dossier</a>
+    </header>
+
+    <main style="padding:72px 36px 80px;max-width:880px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:26px">
+        <span style="font:600 10px/1 var(--mono);letter-spacing:.2em;color:var(--ember);text-transform:uppercase">Methodology</span>
+        <span style="height:1px;flex:1;background:var(--rule)"></span>
+      </div>
+
+      <h1 style="margin:0;font:600 clamp(38px,5vw,60px)/1.0 var(--serif);letter-spacing:-.02em">Methodology &amp; Sources</h1>
+
+      <p style="margin:26px 0 0;max-width:60ch;font:400 17px/1.6 var(--sans);color:var(--ink2)">
+        Temperature data comes from the <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:var(--ember-deep);text-decoration:underline">Open-Meteo</a>
+        forecast and Archive (ERA5) APIs, refreshed automatically{temps.fetched_at ? ` (current temperatures last updated ${temps.fetched_at.slice(0,10)})` : ''}.
+        Every other figure is hand-curated from the authoritative sources below; a build-time check rejects any statistic without a source link and date,
+        and where a value cannot be sourced it is shown as &ldquo;no data&rdquo; rather than estimated.
+      </p>
+
+      <div style="margin-top:48px;border-top:1px solid var(--ink)">
+        {datasets.map((d) => {
+          const list = sources(d.rows);
+          return (
+            <section style="display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start;padding:26px 4px;border-bottom:1px solid var(--rule)">
+              <h2 style="margin:0;font:600 18px/1.25 var(--serif);letter-spacing:-.005em">{d.name}</h2>
+              <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px">
+                {list.length === 0 && <li style="font:400 13px var(--sans);color:var(--mut2)">No sources on record yet.</li>}
+                {list.map((s) => (
+                  <li style="font:400 14px/1.45 var(--sans);color:var(--ink2)">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--mut2)">{s.name}</a>
+                    <span style="font:500 11px var(--mono);color:var(--mut2);margin-left:8px">{s.date}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+
+      <p style="margin:40px 0 0;font:400 12.5px/1.7 var(--sans);color:var(--mut)">
+        Sources differ in definition, year, and method; each row carries its own citation so the basis is always visible. Figures combine official statistics, peer-reviewed studies, and national surveys.
+      </p>
+    </main>
+  </div>
 </Layout>
