@@ -1,4 +1,6 @@
 import React from 'react';
+import { geoMercator, geoPath } from 'd3-geo';
+import { feature } from 'topojson-client';
 
 function css(s: string | undefined): React.CSSProperties {
   const o: Record<string, string> = {};
@@ -14,12 +16,14 @@ function css(s: string | undefined): React.CSSProperties {
   return o as React.CSSProperties;
 }
 
-export default class Dossier extends React.Component<{ baseUrl: string }, { country: string; metric: string; compact: any }> {
-  state = { country: 'ALL', metric: 'peak', compact: null as any };
+export default class Dossier extends React.Component<{ baseUrl: string }, { country: string; metric: string; compact: any; topo: any }> {
+  state = { country: 'ALL', metric: 'peak', compact: null as any, topo: null as any };
 
   componentDidMount() {
     fetch(this.props.baseUrl + 'heat-compact.json').then(r => r.json())
       .then(c => this.setState({ compact: c })).catch(() => {});
+    fetch(this.props.baseUrl + 'europe.topojson').then(r => r.json())
+      .then(t => this.setState({ topo: t })).catch(() => {});
   }
 
   // ---- data ----
@@ -182,25 +186,37 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
   }
 
   buildMap() {
-    const ce = React.createElement, sel = this.state.country;
-    let maxC = 0, maxR = 0; Object.values(this.TILES).forEach(([c, r]) => { maxC = Math.max(maxC, c); maxR = Math.max(maxR, r); });
-    const cells = Object.entries(this.TILES).map(([iso, [col, row]]) => {
+    const ce = React.createElement, sel = this.state.country, topo = this.state.topo;
+    const W = 440, H = 380;
+    if (!topo) return ce('div', { style: { height: H + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '500 12px var(--mono)', color: 'var(--mut2)' } }, 'Loading map…');
+    const obj = topo.objects[Object.keys(topo.objects)[0]];
+    const fc: any = feature(topo, obj);
+    const projection = geoMercator().fitSize([W, H], fc);
+    const path = geoPath(projection);
+    const norm = (id: string) => { const u = (id || '').toUpperCase(); return u === 'UK' ? 'GB' : u === 'EL' ? 'GR' : u; };
+    const kids: any[] = [];
+    // hatch fill for countries with no comparable figure on record
+    kids.push(ce('defs', { key: 'defs' },
+      ce('pattern', { id: 'ac-nodata', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
+        ce('rect', { width: 5, height: 5, fill: 'var(--surf2)' }),
+        ce('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: 'var(--rule)', 'stroke-width': 1 }))));
+    // draw the active country last so its highlight is never clipped by neighbours
+    const ordered = (fc.features as any[]).slice().sort((a, b) => (norm(String(a.id ?? '')) === sel ? 1 : 0) - (norm(String(b.id ?? '')) === sel ? 1 : 0));
+    ordered.forEach((f: any, i: number) => {
+      const iso = norm(f.id != null ? String(f.id) : '');
       const v = this.AC[iso] ?? null, has = v != null, active = sel === iso;
-      const bg = has ? this.acColor(v) as string : 'transparent';
-      const fg = has && v > 50 ? '#fff' : 'var(--ink)';
-      return ce('div', { key: iso, style: {
-        gridColumn: col, gridRow: row, aspectRatio: '1', borderRadius: '2px',
-        background: bg,
-        border: active ? '2px solid var(--ink)' : has ? '1px solid rgba(0,0,0,.08)' : '1px dashed var(--rule)',
-        backgroundImage: has ? 'none' : 'repeating-linear-gradient(45deg,transparent,transparent 4px,var(--rule2) 4px,var(--rule2) 5px)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px',
-        cursor: 'pointer', transition: '.15s', boxShadow: active ? '0 0 0 3px rgba(210,68,42,.25)' : 'none'
-      }, onClick: () => this.setCountry(iso), title: this.nameOf(iso) + (has ? ' — ' + v + '%' : ' — no data') },
-        ce('span', { style: { font: '600 10px var(--mono)', color: fg, letterSpacing: '.02em' } }, iso),
-        has ? ce('span', { style: { font: '600 9px var(--mono)', color: fg, opacity: .85 } }, v + '%') : null
-      );
+      const d = path(f); if (!d) return;
+      kids.push(ce('path', {
+        key: 'p' + i, d,
+        fill: has ? (this.acColor(v) as string) : 'url(#ac-nodata)',
+        stroke: active ? 'var(--ember)' : 'rgba(20,23,26,.32)',
+        'stroke-width': active ? 2 : 0.5,
+        'stroke-linejoin': 'round',
+        style: { cursor: 'pointer', transition: 'fill .15s, stroke .15s' },
+        onClick: () => this.setCountry(iso),
+      }, ce('title', null, this.nameOf(iso) + (has ? ' — ' + v + '%' : ' — no data'))));
     });
-    return ce('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(' + maxC + ',1fr)', gridTemplateRows: 'repeat(' + maxR + ',1fr)', gap: '5px', maxWidth: '440px' } }, cells);
+    return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', maxWidth: '440px', height: 'auto', display: 'block' }, role: 'img', 'aria-label': 'Map of Europe shaded by share of homes with air conditioning' }, kids);
   }
 
   peakSlope(iso: string): number | null {
@@ -541,7 +557,7 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
               <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>03</span>
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Air-Conditioning Gap</h2>
             </div>
-            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Hatched tiles mark countries with no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
+            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Hatched areas mark countries with no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
             <div style={css('display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:48px;align-items:start;margin-top:34px')}>
               <div>
                 <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>% of homes with AC</div>
