@@ -283,7 +283,10 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
 
     // chips
     const chipBase = 'border:none;background:transparent;cursor:pointer;padding:11px 14px;font:600 11.5px/1 var(--sans);letter-spacing:.01em;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;';
-    const chips = this.CHIP_ISOS.map(k => {
+    // Include the selected country as a chip even when it was picked on the map, so the
+    // current selection is always visible (and not mistaken for "All Europe").
+    const chipIsos = (iso !== 'ALL' && !this.CHIP_ISOS.includes(iso)) ? [...this.CHIP_ISOS, iso] : this.CHIP_ISOS;
+    const chips = chipIsos.map(k => {
       const active = iso === k;
       return { label: k === 'ALL' ? 'All Europe' : this.nameOf(k), select: () => this.setCountry(k),
         style: chipBase + (active ? 'color:var(--ember);border-bottom-color:var(--ember);' : 'color:var(--mut);') };
