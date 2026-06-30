@@ -101,7 +101,8 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     { name: 'Verivox', type: 'Market data', url: 'https://www.verivox.de/' },
     { name: 'idealista', type: 'Market data', url: 'https://www.idealista.com/' },
     { name: 'Open-Meteo (ERA5 archive & forecast)', type: 'Climate data', url: 'https://open-meteo.com/' },
-    { name: 'Clean Energy Wire', type: 'News media', url: 'https://www.cleanenergywire.org/', leaning: 'Not rated (AllSides)', leaningUrl: 'https://www.allsides.com/news-source/energy-wire-media-bias' }
+    { name: 'Clean Energy Wire', type: 'News media', url: 'https://www.cleanenergywire.org/', leaning: 'Not rated (AllSides)', leaningUrl: 'https://www.allsides.com/news-source/energy-wire-media-bias' },
+    { name: 'SWI swissinfo', type: 'News media (public broadcaster)', url: 'https://www.swissinfo.ch/', leaning: 'Public-service broadcaster', leaningUrl: 'https://www.swissinfo.ch/eng/about-us/' }
   ];
 
   nameOf(iso: string) { const f = this.COUNTRIES.find(c => c[0] === iso); return f ? f[1] : iso; }
