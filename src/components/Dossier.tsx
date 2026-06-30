@@ -302,7 +302,9 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     // filtered lists
     const regsView = iso === 'ALL' ? this.REGS : this.REGS.filter(r => r.iso === iso || r.iso === 'EU');
     const surveysView = iso === 'ALL' ? this.SURVEYS : this.SURVEYS.filter(s => s.iso === iso || s.iso === 'EU');
-    const settingView = iso === 'ALL' ? this.AC_SETTING : this.AC_SETTING.filter(s => s.iso === iso);
+    // By-setting data is a sparse cross-country comparison, not a per-country drill-down —
+    // always show what exists rather than filter the selection down to nothing.
+    const settingView = this.AC_SETTING;
     const acVal = (iso !== 'ALL' && this.AC[iso] != null) ? this.AC[iso] : null;
 
     // ---- per-country verdict synthesis ----
@@ -583,7 +585,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
             </div>
 
             <h3 style={css('margin:48px 0 4px;font:600 20px/1.2 var(--serif)')}>By setting</h3>
-            <p style={css('margin:0 0 18px;font:400 14px/1.5 var(--sans);color:var(--mut)')}>Where cooling is — and isn&apos;t — installed.</p>
+            <p style={css('margin:0 0 18px;font:400 14px/1.5 var(--sans);color:var(--mut)')}>Only homes have comparable cross-country figures on record; cooling in workplaces, hospitals, schools and care homes is rarely measured — another gap in the evidence.</p>
             <table style={css('width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums')}>
               <thead><tr style={css('border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
                 <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Country</th>
