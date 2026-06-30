@@ -187,7 +187,7 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
 
   buildMap() {
     const ce = React.createElement, sel = this.state.country, topo = this.state.topo;
-    const W = 440, H = 380;
+    const W = 720, H = 680;
     if (!topo) return ce('div', { style: { height: H + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '500 12px var(--mono)', color: 'var(--mut2)' } }, 'Loading map…');
     const obj = topo.objects[Object.keys(topo.objects)[0]];
     const fc: any = feature(topo, obj);
@@ -216,7 +216,7 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
         onClick: () => this.setCountry(iso),
       }, ce('title', null, this.nameOf(iso) + (has ? ' — ' + v + '%' : ' — no data'))));
     });
-    return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', maxWidth: '440px', height: 'auto', display: 'block' }, role: 'img', 'aria-label': 'Map of Europe shaded by share of homes with air conditioning' }, kids);
+    return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', height: 'auto', display: 'block' }, role: 'img', 'aria-label': 'Map of Europe shaded by share of homes with air conditioning' }, kids);
   }
 
   peakSlope(iso: string): number | null {
@@ -558,8 +558,8 @@ export default class Dossier extends React.Component<{ baseUrl: string }, { coun
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Air-Conditioning Gap</h2>
             </div>
             <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Hatched areas mark countries with no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
-            <div style={css('display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:48px;align-items:start;margin-top:34px')}>
-              <div>
+            <div style={css('display:flex;flex-direction:column;gap:44px;margin-top:34px')}>
+              <div style={css('max-width:780px;width:100%;margin:0 auto')}>
                 <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>% of homes with AC</div>
                 {v.mapEl}
                 <div style={css('display:flex;align-items:center;gap:10px;margin-top:20px')}>
