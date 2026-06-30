@@ -217,7 +217,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
       const d = path(f); if (!d) return;
       kids.push(ce('path', {
         key: 'p' + i, d,
-        fill: has ? (this.acColor(v) as string) : cool ? '#cddbe4' : 'url(#ac-nodata)',
+        fill: has ? (this.acColor(v) as string) : cool ? '#9aa0a4' : 'url(#ac-nodata)',
         stroke: active ? 'var(--ember)' : 'rgba(20,23,26,.32)',
         'stroke-width': active ? 2 : 0.5,
         'stroke-linejoin': 'round',
@@ -569,7 +569,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>0%</span>
                   <span style={css('flex:1;height:9px;border-radius:2px;background:linear-gradient(90deg,#b02134,#de8d6e,#ece6dd,#81aac6,#1b3a6b)')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>90%</span>
-                  <span style={css('width:15px;height:11px;background:#cddbe4;border:1px solid var(--rule);margin-left:14px')}></span>
+                  <span style={css('width:15px;height:11px;background:#9aa0a4;border:1px solid var(--rule);margin-left:14px')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>low cooling need</span>
                   <span style={css('width:15px;height:11px;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--rule) 3px,var(--rule) 4px);border:1px dashed var(--rule);margin-left:14px')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>no data</span>
