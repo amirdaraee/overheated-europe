@@ -400,31 +400,34 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
         <main id="top">
 
           {/* HERO */}
-          <section style={css('padding:72px 36px 56px;position:relative')}>
-            <div style={css('display:flex;align-items:center;gap:12px;margin-bottom:26px')}>
+          <section style={css('padding:56px 36px 52px;position:relative')}>
+            <div style={css('display:flex;align-items:center;gap:12px;margin-bottom:30px')}>
               <span style={css('font:600 10px/1 var(--mono);letter-spacing:.2em;color:var(--ember);text-transform:uppercase')}>Evidence Dossier</span>
               <span style={css('height:1px;flex:1;background:var(--rule)')}></span>
               <span style={css('font:500 10px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase')}>30 countries · every figure sourced</span>
             </div>
-            <h1 style={css('margin:0;max-width:15ch;font:600 clamp(46px,7vw,88px)/0.98 var(--serif);letter-spacing:-.02em')}>Europe is overheating. Its cooling hasn&apos;t caught up.</h1>
-            <p style={css('margin:28px 0 0;max-width:54ch;font:400 19px/1.55 var(--sans);color:var(--ink2)')}>The continent that long dismissed air conditioning as an American excess is now living through deadly summers. This is the evidence — the heat, the human cost, the gap in cooling, the rules, the price, and what people actually want. Every figure is sourced.</p>
-
-            <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:52px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
-              <div style={css('padding:24px 22px 22px;border-right:1px solid var(--rule)')}>
-                <div style={css('font:600 clamp(34px,4vw,52px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>61,672</div>
-                <div style={css('margin-top:11px;font:500 12px/1.4 var(--sans);color:var(--mut)')}>Heat-related excess deaths, Europe, summer 2022<a className="src" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10353926/" target="_blank" rel="noopener" title="Ballester et al., Nature Medicine (2023)">i</a></div>
+            <div style={css('display:grid;grid-template-columns:1.08fr 0.92fr;gap:52px;align-items:center')}>
+              <div>
+                <h1 style={css('margin:0;font:600 clamp(40px,5vw,76px)/0.98 var(--serif);letter-spacing:-.02em')}>Europe is overheating. Its cooling hasn&apos;t caught up.</h1>
+                <p style={css('margin:26px 0 0;max-width:50ch;font:400 18px/1.55 var(--sans);color:var(--ink2)')}>The continent that long dismissed air conditioning as an American excess is now living through deadly summers. This is the evidence — the heat, the human cost, the gap in cooling, the rules, the price, and what people actually want. Every figure is sourced.</p>
               </div>
-              <div style={css('padding:24px 22px 22px;border-right:1px solid var(--rule)')}>
-                <div style={css('font:600 clamp(34px,4vw,52px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ember)')}>{v.hottestTemp}</div>
-                <div style={css('margin-top:11px;font:500 12px/1.4 var(--sans);color:var(--mut)')}>{v.hottestLabel}<a className="src" href="https://open-meteo.com/" target="_blank" rel="noopener" title="Open-Meteo forecast API">i</a></div>
-              </div>
-              <div style={css('padding:24px 22px 22px;border-right:1px solid var(--rule)')}>
-                <div style={css('font:600 clamp(34px,4vw,52px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>38%</div>
-                <div style={css('margin-top:11px;font:500 12px/1.4 var(--sans);color:var(--mut)')}>of EU households cannot afford to keep adequately cool in summer<a className="src" href="https://www.eea.europa.eu/en/newsroom/news/climate-change-overheated-and-underprepared" target="_blank" rel="noopener" title="EEA–Eurofound, 2025">i</a></div>
-              </div>
-              <div style={css('padding:24px 22px 22px')}>
-                <div style={css('font:600 clamp(34px,4vw,52px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>4–84%</div>
-                <div style={css('margin-top:11px;font:500 12px/1.4 var(--sans);color:var(--mut)')}>range of homes with AC across countries where it is measured — England to Malta</div>
+              <div style={css('display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
+                <div style={css('padding:22px 20px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)')}>
+                  <div style={css('font:600 clamp(30px,3vw,44px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>61,672</div>
+                  <div style={css('margin-top:10px;font:500 11.5px/1.4 var(--sans);color:var(--mut)')}>Heat-related excess deaths, Europe, summer 2022<a className="src" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10353926/" target="_blank" rel="noopener" title="Ballester et al., Nature Medicine (2023)">i</a></div>
+                </div>
+                <div style={css('padding:22px 20px;border-bottom:1px solid var(--rule)')}>
+                  <div style={css('font:600 clamp(30px,3vw,44px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ember)')}>{v.hottestTemp}</div>
+                  <div style={css('margin-top:10px;font:500 11.5px/1.4 var(--sans);color:var(--mut)')}>{v.hottestLabel}<a className="src" href="https://open-meteo.com/" target="_blank" rel="noopener" title="Open-Meteo forecast API">i</a></div>
+                </div>
+                <div style={css('padding:22px 20px;border-right:1px solid var(--rule)')}>
+                  <div style={css('font:600 clamp(30px,3vw,44px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>38%</div>
+                  <div style={css('margin-top:10px;font:500 11.5px/1.4 var(--sans);color:var(--mut)')}>of EU households cannot afford to keep adequately cool in summer<a className="src" href="https://www.eea.europa.eu/en/newsroom/news/climate-change-overheated-and-underprepared" target="_blank" rel="noopener" title="EEA–Eurofound, 2025">i</a></div>
+                </div>
+                <div style={css('padding:22px 20px')}>
+                  <div style={css('font:600 clamp(30px,3vw,44px)/0.9 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>4–84%</div>
+                  <div style={css('margin-top:10px;font:500 11.5px/1.4 var(--sans);color:var(--mut)')}>range of homes with AC across countries where it is measured — England to Malta</div>
+                </div>
               </div>
             </div>
           </section>
@@ -481,7 +484,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
 
           {/* PER-COUNTRY VERDICT */}
           <section style={css('padding:40px 36px 4px')}>
-            <div style={css('border:1px solid var(--ink);background:var(--surf);max-width:1000px')}>
+            <div style={css('border:1px solid var(--ink);background:var(--surf)')}>
               <div style={css('display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 22px;border-bottom:1px solid var(--rule)')}>
                 <span style={css('font:600 22px/1 var(--serif);letter-spacing:-.01em')}>{v.verdictName}</span>
                 <span style={css(v.verdictBadgeStyle)}>{v.verdictBadge}</span>
