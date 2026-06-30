@@ -202,19 +202,28 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
         ce('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: 'var(--rule)', 'stroke-width': 1 }))));
     // draw the active country last so its highlight is never clipped by neighbours
     const ordered = (fc.features as any[]).slice().sort((a, b) => (norm(String(a.id ?? '')) === sel ? 1 : 0) - (norm(String(b.id ?? '')) === sel ? 1 : 0));
+    // "Low cooling need": cold-climate countries whose recent annual peak max stays below
+    // 30°C rarely reach heat where cooling is a necessity — distinguished from the data gap.
+    const comp: any = this.state.compact;
+    const lowNeed = (iso: string) => {
+      const h = comp && comp.hist && comp.hist[iso];
+      if (!h) return false;
+      const last = h.peak.slice(-10).filter((x: number | null) => x != null) as number[];
+      return last.length ? (last.reduce((a, b) => a + b, 0) / last.length) < 30 : false;
+    };
     ordered.forEach((f: any, i: number) => {
       const iso = norm(f.id != null ? String(f.id) : '');
-      const v = this.AC[iso] ?? null, has = v != null, active = sel === iso;
+      const v = this.AC[iso] ?? null, has = v != null, cool = !has && lowNeed(iso), active = sel === iso;
       const d = path(f); if (!d) return;
       kids.push(ce('path', {
         key: 'p' + i, d,
-        fill: has ? (this.acColor(v) as string) : 'url(#ac-nodata)',
+        fill: has ? (this.acColor(v) as string) : cool ? '#cddbe4' : 'url(#ac-nodata)',
         stroke: active ? 'var(--ember)' : 'rgba(20,23,26,.32)',
         'stroke-width': active ? 2 : 0.5,
         'stroke-linejoin': 'round',
         style: { cursor: 'pointer', transition: 'fill .15s, stroke .15s' },
         onClick: () => this.setCountry(iso),
-      }, ce('title', null, this.nameOf(iso) + (has ? ' — ' + v + '%' : ' — no data'))));
+      }, ce('title', null, this.nameOf(iso) + (has ? ' — ' + v + '%' : cool ? ' — low cooling need' : ' — no data'))));
     });
     return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', height: 'auto', display: 'block' }, role: 'img', 'aria-label': 'Map of Europe shaded by share of homes with air conditioning' }, kids);
   }
@@ -557,7 +566,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>03</span>
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Air-Conditioning Gap</h2>
             </div>
-            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Hatched areas mark countries with no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
+            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Pale-blue countries rarely reach the heat where cooling is a necessity; hatched countries are hot enough for it to matter but have no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
             <div style={css('display:flex;flex-direction:column;gap:44px;margin-top:34px')}>
               <div style={css('max-width:780px;width:100%;margin:0 auto')}>
                 <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>% of homes with AC</div>
@@ -566,7 +575,9 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>0%</span>
                   <span style={css('flex:1;height:9px;border-radius:2px;background:linear-gradient(90deg,#b02134,#de8d6e,#ece6dd,#81aac6,#1b3a6b)')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>90%</span>
-                  <span style={css('width:15px;height:11px;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--rule) 3px,var(--rule) 4px);border:1px dashed var(--rule);margin-left:8px')}></span>
+                  <span style={css('width:15px;height:11px;background:#cddbe4;border:1px solid var(--rule);margin-left:14px')}></span>
+                  <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>low cooling need</span>
+                  <span style={css('width:15px;height:11px;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--rule) 3px,var(--rule) 4px);border:1px dashed var(--rule);margin-left:14px')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>no data</span>
                 </div>
               </div>
