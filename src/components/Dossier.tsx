@@ -87,7 +87,14 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     const x = t * (s.length - 1), i = Math.floor(x), f = x - i, a = s[i], b = s[Math.min(i + 1, s.length - 1)];
     return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * f) + ',' + Math.round(a[1] + (b[1] - a[1]) * f) + ',' + Math.round(a[2] + (b[2] - a[2]) * f) + ')';
   }
-  acColor(v: number | null) { return v == null ? null : this.ramp(v / 90); }
+  // AC penetration scale — diverging: LOW % = red (exposed, no relief), HIGH % = blue (cooled).
+  acColor(v: number | null) {
+    if (v == null) return null;
+    const t = Math.max(0, Math.min(1, v / 90));
+    const s = [[176, 33, 52], [222, 141, 110], [236, 230, 221], [129, 170, 198], [27, 58, 107]];
+    const x = t * (s.length - 1), i = Math.floor(x), f = x - i, a = s[i], b = s[Math.min(i + 1, s.length - 1)];
+    return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * f) + ',' + Math.round(a[1] + (b[1] - a[1]) * f) + ',' + Math.round(a[2] + (b[2] - a[2]) * f) + ')';
+  }
 
   setCountry(iso: string) { this.setState({ country: iso }); }
 
@@ -557,7 +564,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
                 {v.mapEl}
                 <div style={css('display:flex;align-items:center;gap:10px;margin-top:20px')}>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>0%</span>
-                  <span style={css('flex:1;height:9px;border-radius:2px;background:linear-gradient(90deg,#f5e896,#eeb147,#df6d34,#b02134,#6e1020)')}></span>
+                  <span style={css('flex:1;height:9px;border-radius:2px;background:linear-gradient(90deg,#b02134,#de8d6e,#ece6dd,#81aac6,#1b3a6b)')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>90%</span>
                   <span style={css('width:15px;height:11px;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--rule) 3px,var(--rule) 4px);border:1px dashed var(--rule);margin-left:8px')}></span>
                   <span style={css('font:500 10px/1 var(--mono);color:var(--mut)')}>no data</span>
