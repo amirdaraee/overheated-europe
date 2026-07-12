@@ -1,5 +1,5 @@
 type,capacity_kw,price_min_eur,price_max_eur,annual_running_cost_eur,region,source_name,source_url,source_date
 portable,,300,650,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
 split,,1000,2200,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
-multi_split,,1800,3900,,NL,Zoofy – Costs of installing an AC (NL market guide),https://zoofy.nl/en/price-guides/costs-of-installing-an-ac/,2026-05-13
+multi_split,,2700,3800,,NL,Homedeal – multi-split (2 indoor units) incl. certified installation (standard job; premium/complex higher),https://www.homedeal.nl/airco/multi-split-airco/,2025-12-17
 heat_pump,,9000,20000,,EU (excl. DE),HeatPumpsWatch – Heat pump installation costs: Germany vs. Europe (Web Archive snapshot),https://web.archive.org/web/20260315081131/https://heatpumpswatch.org/heat-pump-installation-costs-germany-vs-europe/,2026-02-10
