@@ -774,10 +774,34 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
             </div>
           </section>
 
-          {/* 07 THE SOURCES */}
-          <section style={css('padding:60px 36px 56px;border-top:1px solid var(--rule)')}>
+          {/* 07 THE FORECAST */}
+          <section style={css('padding:60px 36px 64px;border-top:1px solid var(--rule)')}>
             <div style={css('display:flex;align-items:baseline;gap:14px;margin-bottom:8px')}>
               <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>07</span>
+              <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Forecast</h2>
+            </div>
+            <p style={css('margin:0 0 34px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>The gap only matters more from here. Europe is the fastest-warming continent, and the EU&apos;s own projections put the human cost on a steep curve — the figures below scale with how much warming we allow, measured against pre-industrial levels.</p>
+            <div className="r-stack" style={css('display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
+              <div style={css('padding:26px 22px;border-right:1px solid var(--rule)')}>
+                <div style={css('font:600 clamp(30px,3.2vw,44px)/0.95 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ember)')}>30k–96k</div>
+                <div style={css('margin-top:12px;font:500 12.5px/1.5 var(--sans);color:var(--mut)')}>projected heat-related deaths a year in Europe by 2100 — up from ~2,750 today — at 1.5°C to 3°C of warming<a className="src" href="https://joint-research-centre.ec.europa.eu/system/files/2020-05/pesetaiv_task_11_heat-cold_extremes_final_report.pdf" target="_blank" rel="noopener" title="JRC PESETA IV — Global warming and human impacts of heat and cold extremes in the EU">i</a></div>
+              </div>
+              <div style={css('padding:26px 22px;border-right:1px solid var(--rule)')}>
+                <div style={css('font:600 clamp(30px,3.2vw,44px)/0.95 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em')}>100–300M</div>
+                <div style={css('margin-top:12px;font:500 12.5px/1.5 var(--sans);color:var(--mut)')}>Europeans exposed to an &ldquo;intense&rdquo; heatwave every year by 2100 — from over 100 million at 1.5°C to nearly 300 million, over half the continent, at 3°C<a className="src" href="https://joint-research-centre.ec.europa.eu/system/files/2020-05/pesetaiv_task_11_heat-cold_extremes_final_report.pdf" target="_blank" rel="noopener" title="JRC PESETA IV — heat exposure projections">i</a></div>
+              </div>
+              <div style={css('padding:26px 22px')}>
+                <div style={css('font:600 clamp(28px,3vw,40px)/0.98 var(--serif);letter-spacing:-.02em')}>&ldquo;Catastrophic&rdquo;</div>
+                <div style={css('margin-top:12px;font:500 12.5px/1.5 var(--sans);color:var(--mut)')}>the EU&apos;s own risk rating for heat and human health in the second half of the century<a className="src" href="https://www.eea.europa.eu/en/analysis/publications/european-climate-risk-assessment" target="_blank" rel="noopener" title="EEA — European Climate Risk Assessment (EUCRA), 2024">i</a></div>
+              </div>
+            </div>
+            <p style={css('margin:22px 0 0;max-width:66ch;font:400 12.5px/1.6 var(--sans);color:var(--mut2)')}>Projections are Europe-wide and scenario-based (global warming of 1.5°C, 2°C or 3°C), assuming present-day vulnerability and no extra adaptation. Source: European Commission Joint Research Centre (PESETA IV) and the EEA European Climate Risk Assessment.</p>
+          </section>
+
+          {/* 08 THE SOURCES */}
+          <section style={css('padding:60px 36px 56px;border-top:1px solid var(--rule)')}>
+            <div style={css('display:flex;align-items:baseline;gap:14px;margin-bottom:8px')}>
+              <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>08</span>
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Sources</h2>
             </div>
             <p style={css('margin:0 0 22px;max-width:66ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Every figure here comes from official statistics, peer-reviewed research, government agencies or primary legal texts — not partisan media. Each source is classified below; a media-bias leaning is shown only where a source is a news outlet, and none of the evidence rests on a politically-rated source.</p>
@@ -818,7 +842,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <div style={css('font:600 18px/1.2 var(--serif)')}>A note on the evidence</div>
               <p style={css('margin:12px 0 0;font:400 13px/1.6 var(--sans);color:var(--mut)')}>Figures combine official statistics, peer-reviewed studies, and national surveys; definitions, years, and methods vary by source. Every figure carries an <span style={css('color:var(--ember)')}>ⓘ</span> link to its origin. Temperature data is from the Open-Meteo Archive (ERA5) and forecast API.</p>
             </div>
-            <div style={css('font:500 11px/1.7 var(--mono);color:var(--mut2);max-width:30ch')}>Full source list with categories in section 07 above.<br/>Temperature data last updated {v.fetchedDate}.</div>
+            <div style={css('font:500 11px/1.7 var(--mono);color:var(--mut2);max-width:30ch')}>Full source list with categories in section 08 above.<br/>Temperature data last updated {v.fetchedDate}.</div>
           </div>
         </footer>
 
