@@ -301,7 +301,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     [0, 30, 60, 90].forEach(t => { kids.push(ce('text', { key: 'xt' + t, x: xs(t), y: H - 30, 'text-anchor': 'middle', fill: 'var(--mut2)', style: { font: '500 9.5px var(--mono,monospace)' } }, t + '%')); });
     // axis labels
     kids.push(ce('text', { key: 'xlab', x: pl + iw / 2, y: H - 8, 'text-anchor': 'middle', fill: 'var(--mut)', style: { font: '600 10px var(--mono,monospace)', letterSpacing: '.06em' } }, 'HOMES WITH AC →'));
-    kids.push(ce('text', { key: 'ylab', x: 16, y: pt + ih / 2, 'text-anchor': 'middle', fill: 'var(--mut)', transform: 'rotate(-90 16 ' + (pt + ih / 2) + ')', style: { font: '600 10px var(--mono,monospace)', letterSpacing: '.06em' } }, 'SUMMER MEAN MAX °C →'));
+    kids.push(ce('text', { key: 'ylab', x: 16, y: pt + ih / 2, 'text-anchor': 'middle', fill: 'var(--mut)', transform: 'rotate(-90 16 ' + (pt + ih / 2) + ')', style: { font: '600 10px var(--mono,monospace)', letterSpacing: '.06em' } }, 'TYPICAL SUMMER PEAK °C →'));
     // dots
     pts.forEach(p => { const active = sel === p.iso, dim = sel !== 'ALL' && !active;
       kids.push(ce('circle', { key: 'c' + p.iso, cx: xs(p.ac), cy: ys(p.heat), r: active ? 9 : 7, fill: this.acColor(p.ac) as string, stroke: active ? 'var(--ink)' : 'rgba(0,0,0,.25)', 'stroke-width': active ? 2.5 : 1, opacity: dim ? 0.3 : 1, style: { cursor: 'pointer', transition: '.2s' }, onClick: () => this.setCountry(p.iso) }));
@@ -625,7 +625,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>03</span>
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Air-Conditioning Gap</h2>
             </div>
-            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Pale-blue countries rarely reach the heat where cooling is a necessity; hatched countries are hot enough for it to matter but have no comparable figure on record — the gap in the data is itself part of the story. Click a country to filter the dossier.</p>
+            <p style={css('margin:0 0 8px;max-width:64ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>{v.acHeadline}. Pale-blue countries rarely reach the heat where cooling is a necessity; hatched countries are hot enough for it to matter but have no comparable figure on record — the gap in the data is itself part of the story. A reversible air-to-air heat pump cools as well as heats, so where it is the usual cooling device — as in Norway or Bulgaria — it counts here as air conditioning. Click a country to filter the dossier.</p>
             <div style={css('display:flex;flex-direction:column;gap:44px;margin-top:34px')}>
               <div style={css('max-width:780px;width:100%;margin:0 auto')}>
                 <div style={css('font:600 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>% of homes with AC</div>
