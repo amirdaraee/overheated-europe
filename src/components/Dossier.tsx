@@ -16,8 +16,8 @@ function css(s: string | undefined): React.CSSProperties {
   return o as React.CSSProperties;
 }
 
-export default class Dossier extends React.Component<{ baseUrl: string; ac: Record<string, number> }, { country: string; metric: string; compact: any; topo: any }> {
-  state = { country: 'ALL', metric: 'peak', compact: null as any, topo: null as any };
+export default class Dossier extends React.Component<{ baseUrl: string; ac: Record<string, number> }, { country: string; metric: string; compact: any; topo: any; sourcesOpen: boolean }> {
+  state = { country: 'ALL', metric: 'peak', compact: null as any, topo: null as any, sourcesOpen: false };
   mapTipRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
@@ -301,7 +301,33 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     // dots
     pts.forEach(p => { const active = sel === p.iso, dim = sel !== 'ALL' && !active;
       kids.push(ce('circle', { key: 'c' + p.iso, cx: xs(p.ac), cy: ys(p.heat), r: active ? 9 : 7, fill: this.acColor(p.ac) as string, stroke: active ? 'var(--ink)' : 'rgba(0,0,0,.25)', 'stroke-width': active ? 2.5 : 1, opacity: dim ? 0.3 : 1, style: { cursor: 'pointer', transition: '.2s' }, onClick: () => this.setCountry(p.iso) }));
-      kids.push(ce('text', { key: 'l' + p.iso, x: xs(p.ac), y: ys(p.heat) - 13, 'text-anchor': 'middle', fill: 'var(--ink)', opacity: dim ? 0.35 : 1, style: { font: (active ? '700' : '600') + ' 11px var(--sans,sans-serif)', cursor: 'pointer' }, onClick: () => this.setCountry(p.iso) }, p.name));
+    });
+    // country labels with greedy de-collision so names never overlap
+    type Box = { x1: number; y1: number; x2: number; y2: number };
+    const lh = 11, cw = 5.4;
+    const ov = (a: Box, b: Box) => !(a.x2 < b.x1 || a.x1 > b.x2 || a.y2 < b.y1 || a.y1 > b.y2);
+    // seed with the quadrant captions so labels avoid them
+    const placed: Box[] = [
+      { x1: pl + 4, y1: pt + 6, x2: pl + 58, y2: pt + 20 },
+      { x1: pl + 4, y1: pt + 22, x2: pl + 98, y2: pt + 34 },
+      { x1: pl + iw - 58, y1: pt + 6, x2: pl + iw - 4, y2: pt + 20 },
+    ];
+    // place the selected label first (prime spot), then left-to-right by AC share
+    const order = [...pts].sort((a, b) => (a.iso === sel ? -1 : b.iso === sel ? 1 : a.ac - b.ac));
+    order.forEach(p => { const active = sel === p.iso, dim = sel !== 'ALL' && !active;
+      const cx = xs(p.ac), cy = ys(p.heat), w = p.name.length * cw;
+      const cands: [number, number, string][] = [[0, -12, 'middle'], [0, 15, 'middle'], [0, -22, 'middle'], [0, 25, 'middle'], [10, -2, 'start'], [-10, -2, 'end'], [10, 9, 'start'], [-10, 9, 'end'], [0, -32, 'middle'], [0, 35, 'middle']];
+      let ch: { lx: number; ly: number; an: string; box: Box } | null = null;
+      for (const [dx, dy, an] of cands) {
+        const lx = cx + dx, ly = cy + dy;
+        const bx1 = an === 'middle' ? lx - w / 2 : an === 'start' ? lx : lx - w;
+        const box: Box = { x1: bx1 - 1, y1: ly - lh, x2: bx1 + w + 1, y2: ly + 2 };
+        if (box.x1 < 3 || box.x2 > W - 3 || box.y1 < pt - 4 || box.y2 > pt + ih + 4) continue;
+        if (!placed.some(q => ov(box, q))) { ch = { lx, ly, an, box }; break; }
+      }
+      if (!ch) { const lx = cx, ly = cy - 12; ch = { lx, ly, an: 'middle', box: { x1: lx - w / 2, y1: ly - lh, x2: lx + w / 2, y2: ly + 2 } }; }
+      placed.push(ch.box);
+      kids.push(ce('text', { key: 'l' + p.iso, x: ch.lx, y: ch.ly, 'text-anchor': ch.an, fill: 'var(--ink)', opacity: dim ? 0.35 : 1, style: { font: (active ? '700' : '600') + ' 10px var(--sans,sans-serif)', cursor: 'pointer' }, onClick: () => this.setCountry(p.iso) }, p.name));
     });
     return ce('svg', { viewBox: '0 0 ' + W + ' ' + H, style: { width: '100%', height: 'auto', display: 'block' }, preserveAspectRatio: 'xMidYMid meet' }, kids);
   }
@@ -320,13 +346,16 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
 
     // chips
     const chipBase = 'border:none;background:transparent;cursor:pointer;padding:11px 14px;font:600 11.5px/1 var(--sans);letter-spacing:.01em;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;';
-    // Include the selected country as a chip even when it was picked on the map, so the
-    // current selection is always visible (and not mistaken for "All Europe").
-    const chipIsos = (iso !== 'ALL' && !this.CHIP_ISOS.includes(iso)) ? [...this.CHIP_ISOS, iso] : this.CHIP_ISOS;
+    // Every country with AC data gets a chip: the featured ones first (curated order),
+    // then the rest alphabetically. Include the selected country even if it has no data
+    // (e.g. picked on the map) so the current selection is always visible.
+    const rest = Object.keys(this.AC).filter(k => !this.CHIP_ISOS.includes(k)).sort((a, b) => this.nameOf(a).localeCompare(this.nameOf(b)));
+    let chipIsos = [...this.CHIP_ISOS, ...rest];
+    if (iso !== 'ALL' && !chipIsos.includes(iso)) chipIsos = [...chipIsos, iso];
     const chips = chipIsos.map(k => {
       const active = iso === k;
-      return { label: k === 'ALL' ? 'All Europe' : this.nameOf(k), select: () => this.setCountry(k),
-        style: chipBase + (active ? 'color:var(--ember);border-bottom-color:var(--ember);' : 'color:var(--mut);') };
+      return { key: k, label: k === 'ALL' ? 'All Europe' : this.nameOf(k), select: () => this.setCountry(k),
+        style: chipBase + (active ? 'color:var(--ember);border-bottom:2px solid var(--ember);' : 'color:var(--mut);') };
     });
 
     // heat dek
@@ -424,16 +453,17 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
   render() {
     const v = this.renderVals();
     return (
-      <div style={css('max-width:1280px;margin:0 auto;min-height:100vh;background:var(--paper);overflow:hidden')}>
+      <div className="dossier" style={css('max-width:1280px;margin:0 auto;min-height:100vh;background:var(--paper);overflow:hidden')}>
+        <style dangerouslySetInnerHTML={{ __html: '@media (max-width:720px){.dossier main>*,.dossier>footer{padding-left:20px!important;padding-right:20px!important}.dossier .r-stack{grid-template-columns:1fr!important;gap:30px!important}.dossier .r-4col{grid-template-columns:1fr 1fr!important}.dossier .r-col{grid-template-columns:1fr!important}.dossier table{font-size:12.5px!important}.dossier th,.dossier td{padding-left:9px!important;padding-right:9px!important}.dossier .r-hero{gap:26px!important}}' }} />
 
         <main id="top">
 
           {/* HERO */}
           <section style={css('padding:52px 36px 52px;position:relative')}>
-            <div style={css('display:grid;grid-template-columns:1.08fr 0.92fr;gap:52px;align-items:center')}>
+            <div className="r-stack r-hero" style={css('display:grid;grid-template-columns:1.08fr 0.92fr;gap:52px;align-items:center')}>
               <div>
                 <h1 style={css('margin:0;font:600 clamp(40px,5vw,76px)/0.98 var(--serif);letter-spacing:-.02em')}>Europe is overheating. Its cooling hasn&apos;t caught up.</h1>
-                <p style={css('margin:26px 0 0;max-width:50ch;font:400 18px/1.55 var(--sans);color:var(--ink2)')}>The continent that long dismissed air conditioning as an American excess is now living through deadly summers. This is the evidence — the heat, the human cost, the gap in cooling, the rules, the price, and what people actually want. Every figure is sourced.</p>
+                <p style={css('margin:26px 0 0;max-width:50ch;font:400 18px/1.55 var(--sans);color:var(--ink2)')}>The continent that long dismissed air conditioning as an unnecessary indulgence is now living through deadly summers. This is the evidence — the heat, the human cost, the gap in cooling, the rules, the price, and what people actually want. Every figure is sourced.</p>
               </div>
               <div style={css('display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
                 <div style={css('padding:22px 20px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)')}>
@@ -462,7 +492,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('font:600 10px/1 var(--mono);letter-spacing:.2em;color:var(--ember);text-transform:uppercase')}>The argument in one chart</span>
               <span style={css('height:1px;flex:1;background:var(--rule)')}></span>
             </div>
-            <div style={css('display:grid;grid-template-columns:0.92fr 1.08fr;gap:52px;align-items:start')}>
+            <div className="r-stack" style={css('display:grid;grid-template-columns:0.92fr 1.08fr;gap:52px;align-items:start')}>
               <div>
                 <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1.02 var(--serif);letter-spacing:-.015em')}>The gap, in one chart</h2>
                 <p style={css('margin:18px 0 0;max-width:46ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Each country&apos;s typical summer heat plotted against the share of homes that can cool. The top-left is the danger zone: <span style={css('color:var(--ember-deep);font-weight:600')}>hot summers, little relief</span>. Click a point — or use the country filter below — to dig into any one of them.</p>
@@ -493,15 +523,14 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
           </section>
 
           {/* COUNTRY FILTER (sticky) — controls everything below */}
-          <div id="explore" style={css('position:sticky;top:0;z-index:40;background:rgba(230,233,235,.93);backdrop-filter:blur(10px);border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);padding-left:36px')}>
+          <div id="explore" style={css('position:sticky;top:0;z-index:40;background:rgba(230,233,235,.93);backdrop-filter:blur(10px);border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);padding:11px 36px')}>
             <div style={css('display:flex;align-items:center;gap:16px')}>
               <span style={css('font:600 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--mut);text-transform:uppercase;flex:none')}>Explore by country</span>
-              <div style={css('overflow-x:auto;flex:1')}>
-                <div style={css('display:flex;gap:0')}>
-                  {v.chips.map((c: any, i: number) => (
-                    <button key={i} onClick={c.select} style={css(c.style)}>{c.label}</button>
-                  ))}
-                </div>
+              <div style={css('position:relative;display:inline-block')}>
+                <select value={this.state.country} onChange={(e: any) => this.setCountry(e.target.value)} style={css('appearance:none;-webkit-appearance:none;font:600 12.5px/1 var(--sans);color:var(--ember);background:transparent;border:1px solid var(--ink);border-radius:2px;padding:9px 34px 9px 13px;cursor:pointer;letter-spacing:.01em')}>
+                  {v.chips.map((c: any) => (<option key={c.key} value={c.key} style={{ color: '#1a1a1a', background: '#fff' }}>{c.label}</option>))}
+                </select>
+                <span style={css('position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:8px;color:var(--ember)')}>&#9660;</span>
               </div>
             </div>
           </div>
@@ -513,7 +542,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
                 <span style={css('font:600 22px/1 var(--serif);letter-spacing:-.01em')}>{v.verdictName}</span>
                 <span style={css(v.verdictBadgeStyle)}>{v.verdictBadge}</span>
               </div>
-              <div style={css('display:grid;grid-template-columns:repeat(4,1fr)')}>
+              <div className="r-4col" style={css('display:grid;grid-template-columns:repeat(4,1fr)')}>
                 {v.verdictMetrics.map((m: any, i: number) => (
                   <div key={i} style={css('padding:18px 22px;border-right:1px solid var(--rule2)')}>
                     <div style={css('font:500 9.5px/1.3 var(--mono);letter-spacing:.08em;color:var(--mut);text-transform:uppercase')}>{m.k}</div>
@@ -572,7 +601,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut2);text-transform:uppercase;align-self:center')}>Europe-wide</span>
             </div>
             <p style={css('margin:0 0 30px;max-width:60ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Heat is the deadliest extreme-weather hazard in Europe. These are not projections — they are counted, peer-reviewed excess deaths.</p>
-            <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--ink)')}>
+            <div className="r-col" style={css('display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--ink)')}>
               {v.mortality.map((m: any, i: number) => (
                 <div key={i} style={css('padding:34px 30px;border-right:1px solid var(--rule)')}>
                   <div style={css('font:500 10px/1 var(--mono);letter-spacing:.13em;color:var(--mut);text-transform:uppercase;margin-bottom:16px')}>{m.period}</div>
@@ -686,7 +715,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Cost</h2>
             </div>
             <p style={css('margin:0 0 28px;max-width:60ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Typical purchase ranges by air-conditioning type, European market.</p>
-            <div style={css('display:grid;grid-template-columns:1.6fr 1fr;gap:48px;align-items:start')}>
+            <div className="r-stack" style={css('display:grid;grid-template-columns:1.6fr 1fr;gap:48px;align-items:start')}>
               <table style={css('width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums')}>
                 <thead><tr style={css('border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
                   <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Type</th>
@@ -747,8 +776,18 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
               <span style={css('font:600 11px/1 var(--mono);letter-spacing:.16em;color:var(--ember)')}>07</span>
               <h2 style={css('margin:0;font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.015em')}>The Sources</h2>
             </div>
-            <p style={css('margin:0 0 26px;max-width:66ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Every figure here comes from official statistics, peer-reviewed research, government agencies or primary legal texts — not partisan media. Each source is classified below; a media-bias leaning is shown only where a source is a news outlet, and none of the evidence rests on a politically-rated source.</p>
-            <table style={css('width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums')}>
+            <p style={css('margin:0 0 22px;max-width:66ch;font:400 16px/1.55 var(--sans);color:var(--ink2)')}>Every figure here comes from official statistics, peer-reviewed research, government agencies or primary legal texts — not partisan media. Each source is classified below; a media-bias leaning is shown only where a source is a news outlet, and none of the evidence rests on a politically-rated source.</p>
+            <button
+              type="button"
+              onClick={() => this.setState({ sourcesOpen: !this.state.sourcesOpen })}
+              aria-expanded={this.state.sourcesOpen}
+              style={css('display:inline-flex;align-items:center;gap:10px;padding:11px 16px;background:none;border:1px solid var(--ink);border-radius:2px;cursor:pointer;font:600 11px/1 var(--mono);letter-spacing:.12em;color:var(--ink);text-transform:uppercase')}
+            >
+              <span style={css('display:inline-block;font-size:9px;transition:transform .18s ease;' + (this.state.sourcesOpen ? 'transform:rotate(90deg)' : ''))}>&#9654;</span>
+              {this.state.sourcesOpen ? 'Hide sources' : `Show all ${this.SOURCES.length} sources`}
+            </button>
+            {this.state.sourcesOpen && (
+            <table style={css('width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:22px')}>
               <thead><tr style={css('border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)')}>
                 <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Source</th>
                 <th style={css('text-align:left;padding:10px 12px;font:600 10px/1 var(--mono);letter-spacing:.1em;color:var(--mut);text-transform:uppercase')}>Category</th>
@@ -764,6 +803,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
                 ))}
               </tbody>
             </table>
+            )}
           </section>
 
         </main>
