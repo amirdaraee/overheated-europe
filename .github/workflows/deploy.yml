@@ -20,7 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          ASTRO_SITE: https://amirdaraee.github.io
+          ASTRO_SITE: https://amirdaraee.com
           ASTRO_BASE: /overheated-europe/
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
