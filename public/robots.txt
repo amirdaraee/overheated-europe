@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://amirdaraee.com/overheated-europe/sitemap-index.xml
+Sitemap: https://coolinggap.eu/sitemap-index.xml

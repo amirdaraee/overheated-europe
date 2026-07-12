@@ -56,7 +56,6 @@ npm run build     # astro check && astro build
 `.github/workflows/deploy.yml` builds and deploys to GitHub Pages on push to `main`.
 The data-refresh workflows commit updated datasets and trigger a redeploy.
 
-> GitHub Pages for a **private** repository requires a paid GitHub plan. If this repo stays
-> private on a free plan, run it locally (`npm run dev`) or make the repo public to publish.
-> The build is configured for a project page at `/overheated-europe/` via the
-> `ASTRO_BASE` env var in `deploy.yml` — update both if the repo is renamed.
+> The site is published to GitHub Pages at the custom domain **coolinggap.eu** (root),
+> set via `public/CNAME` and `ASTRO_SITE` in `deploy.yml`. It serves from the domain root,
+> so no base path is needed. Run locally with `npm run dev`.
