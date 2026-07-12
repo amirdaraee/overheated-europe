@@ -58,5 +58,5 @@ The data-refresh workflows commit updated datasets and trigger a redeploy.
 
 > GitHub Pages for a **private** repository requires a paid GitHub plan. If this repo stays
 > private on a free plan, run it locally (`npm run dev`) or make the repo public to publish.
-> The build is configured for a project page at `/europe-heatwave-report/` via the
+> The build is configured for a project page at `/overheated-europe/` via the
 > `ASTRO_BASE` env var in `deploy.yml` — update both if the repo is renamed.

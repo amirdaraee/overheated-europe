@@ -21,7 +21,7 @@ jobs:
       - run: npm run build
         env:
           ASTRO_SITE: https://amirdaraee.github.io
-          ASTRO_BASE: /europe-heatwave-report/
+          ASTRO_BASE: /overheated-europe/
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
   deploy:
