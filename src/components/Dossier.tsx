@@ -279,9 +279,13 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     if (!c) return React.createElement('div', { style: { height: '380px' } });
     const ce = React.createElement, sel = this.state.country;
     const acFull: Record<string, number> = { ...this.AC, GB: 4.3 };
-    const pts = Object.keys(acFull).map(iso => ({ iso, name: this.nameOf(iso), ac: acFull[iso], heat: (c.cur[iso] && c.cur[iso].mean) || null })).filter(p => p.heat != null) as { iso: string; name: string; ac: number; heat: number }[];
+    // y-axis uses each country's stable climate signal — the mean of its last 10 summers'
+    // mean-max (June–Aug) — NOT the volatile last-2-weeks reading in c.cur, so the "exposed"
+    // zone reflects a country's climate rather than this week's weather.
+    const summerMean = (iso: string): number | null => { const s = (((c.hist[iso] || {}).summer) || []).filter((x: number | null) => x != null) as number[]; const l = s.slice(-10); return l.length ? Math.round(l.reduce((a, b) => a + b, 0) / l.length * 10) / 10 : null; };
+    const pts = Object.keys(acFull).map(iso => ({ iso, name: this.nameOf(iso), ac: acFull[iso], heat: summerMean(iso) })).filter(p => p.heat != null) as { iso: string; name: string; ac: number; heat: number }[];
     const W = 560, H = 440, pl = 52, pr = 24, pt = 44, pb = 52, iw = W - pl - pr, ih = H - pt - pb;
-    const xmin = 0, xmax = 90, ymin = 24, ymax = 41;
+    const xmin = 0, xmax = 90, ymin = 28, ymax = 40;
     const xs = (v: number) => pl + v / (xmax - xmin) * iw, ys = (v: number) => pt + (ymax - v) / (ymax - ymin) * ih;
     const xThr = 30, yThr = 33; // exposed = heat>yThr & ac<xThr
     const kids: React.ReactNode[] = [];
@@ -293,7 +297,7 @@ export default class Dossier extends React.Component<{ baseUrl: string; ac: Reco
     kids.push(ce('text', { key: 'ql2', x: pl + 8, y: pt + 30, fill: '#a02617', style: { font: '400 9.5px var(--sans,sans-serif)' } }, 'hot · little cooling'));
     kids.push(ce('text', { key: 'qr', x: pl + iw - 8, y: pt + 16, 'text-anchor': 'end', fill: 'var(--mut2)', style: { font: '600 10px var(--mono,monospace)', letterSpacing: '.08em' } }, 'ADAPTED'));
     // axes ticks
-    [25, 30, 35, 40].forEach(t => { kids.push(ce('text', { key: 'yt' + t, x: pl - 9, y: ys(t) + 3, 'text-anchor': 'end', fill: 'var(--mut2)', style: { font: '500 9.5px var(--mono,monospace)' } }, t + '°')); kids.push(ce('line', { key: 'ygl' + t, x1: pl, y1: ys(t), x2: pl + iw, y2: ys(t), stroke: 'var(--rule2)' })); });
+    [30, 34, 38].forEach(t => { kids.push(ce('text', { key: 'yt' + t, x: pl - 9, y: ys(t) + 3, 'text-anchor': 'end', fill: 'var(--mut2)', style: { font: '500 9.5px var(--mono,monospace)' } }, t + '°')); kids.push(ce('line', { key: 'ygl' + t, x1: pl, y1: ys(t), x2: pl + iw, y2: ys(t), stroke: 'var(--rule2)' })); });
     [0, 30, 60, 90].forEach(t => { kids.push(ce('text', { key: 'xt' + t, x: xs(t), y: H - 30, 'text-anchor': 'middle', fill: 'var(--mut2)', style: { font: '500 9.5px var(--mono,monospace)' } }, t + '%')); });
     // axis labels
     kids.push(ce('text', { key: 'xlab', x: pl + iw / 2, y: H - 8, 'text-anchor': 'middle', fill: 'var(--mut)', style: { font: '600 10px var(--mono,monospace)', letterSpacing: '.06em' } }, 'HOMES WITH AC →'));
