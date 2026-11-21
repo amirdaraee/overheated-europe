@@ -20,12 +20,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@astrojs/react": "^6.0.0",
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/react": "^7.1.9",
+    "@astrojs/sitemap": "^3.7.6",
     "@nanostores/react": "^0.8.4",
     "@observablehq/plot": "^0.6.17",
-    "astro": "^6.4.8",
-    "csv-parse": "^5.6.0",
+    "astro": "^7.4.13",
+    "csv-parse": "^7.0.3",
     "d3-geo": "^3.1.1",
     "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.1.0",
@@ -33,10 +33,10 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "topojson-client": "^3.1.0",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.9",
+    "@astrojs/check": "^0.9.12",
     "@tailwindcss/vite": "^4.3.1",
     "@types/d3-geo": "^3.1.0",
     "@types/d3-scale": "^4.0.9",
@@ -48,6 +48,6 @@
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.12"
   }
 }
